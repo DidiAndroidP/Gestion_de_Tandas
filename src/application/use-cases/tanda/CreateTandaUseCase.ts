@@ -16,7 +16,9 @@ export class CreateTandaUseCase {
       dto.penaltyPerDay,
       "created",
       dto.creatorId,
-      new Date()
+      new Date(),
+      null, 
+      []   
     )
 
     return this.tandaRepository.save(tanda)

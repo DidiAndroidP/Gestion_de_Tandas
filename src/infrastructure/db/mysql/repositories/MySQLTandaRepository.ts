@@ -8,8 +8,8 @@ export class MySQLTandaRepository implements TandaRepository {
     const [result]: any = await db.execute(
       `INSERT INTO tandas
       (name, contribution_amount, payment_frequency, total_members,
-       delay_tolerance_days, penalty_per_day, status, creator_id, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       delay_tolerance_days, penalty_per_day, status, creator_id, created_at, start_date)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, 
       [
         tanda.name,
         tanda.contributionAmount,
@@ -19,11 +19,13 @@ export class MySQLTandaRepository implements TandaRepository {
         tanda.penaltyPerDay,
         tanda.status,
         tanda.creatorId,
-        tanda.createdAt
+        tanda.createdAt,
+        tanda.startDate 
       ]
     )
+
     return new Tanda(
-        result.insertId, 
+        result.insertId,
         tanda.name,
         tanda.contributionAmount,
         tanda.paymentFrequency,
@@ -32,14 +34,16 @@ export class MySQLTandaRepository implements TandaRepository {
         tanda.penaltyPerDay,
         tanda.status,
         tanda.creatorId,
-        tanda.createdAt
+        tanda.createdAt,
+        tanda.startDate, 
+        []
     );
   }
 
   async update(tanda: Tanda): Promise<void> {
     await db.execute(
-      `UPDATE tandas SET status = ? WHERE id = ?`,
-      [tanda.status, tanda.id]
+      `UPDATE tandas SET status = ?, start_date = ? WHERE id = ?`,
+      [tanda.status, tanda.startDate, tanda.id]
     )
   }
 
@@ -50,8 +54,14 @@ export class MySQLTandaRepository implements TandaRepository {
     )
 
     if (rows.length === 0) return null
-
     const t = rows[0]
+
+    const [partRows]: any = await db.execute(
+        `SELECT user_id FROM participants WHERE tanda_id = ?`,
+        [id]
+    )
+    const participantIds = partRows.map((p: any) => p.user_id)
+
     return new Tanda(
       t.id,
       t.name,
@@ -62,29 +72,43 @@ export class MySQLTandaRepository implements TandaRepository {
       t.penalty_per_day,
       t.status,
       t.creator_id,
-      t.created_at
+      t.created_at,
+      t.start_date, 
+      participantIds
     )
   }
 
-  async findByCreadorId(creadorId: number): Promise<Tanda[]> {
+  async findByCreatorId(creatorId: number): Promise<Tanda[]> {
     const [rows]: any = await db.execute(
       `SELECT * FROM tandas WHERE creator_id = ?`,
-      [creadorId]
+      [creatorId]
     )
 
-    return rows.map((t: any) =>
-      new Tanda(
-        t.id,
-        t.name,
-        t.contribution_amount,
-        t.payment_frequency,
-        t.total_members,
-        t.delay_tolerance_days,
-        t.penalty_per_day,
-        t.status,
-        t.creator_id,
-        t.created_at
-      )
-    )
+    const tandas: Tanda[] = []
+
+    for (const t of rows) {
+        const [partRows]: any = await db.execute(
+            `SELECT user_id FROM participants WHERE tanda_id = ?`,
+            [t.id]
+        )
+        const participantIds = partRows.map((p: any) => p.user_id)
+
+        tandas.push(new Tanda(
+            t.id,
+            t.name,
+            t.contribution_amount,
+            t.payment_frequency,
+            t.total_members,
+            t.delay_tolerance_days,
+            t.penalty_per_day,
+            t.status,
+            t.creator_id,
+            t.created_at,
+            t.start_date, 
+            participantIds
+        ))
+    }
+
+    return tandas
   }
 }

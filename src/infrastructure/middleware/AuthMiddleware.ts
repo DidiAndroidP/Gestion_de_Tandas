@@ -1,14 +1,6 @@
 import { Request, Response, NextFunction } from "express"
 import { AuthRepository } from "../../domain/ports/AuthRepository"
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: any
-    }
-  }
-}
-
 export const createAuthMiddleware = (authRepository: AuthRepository) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const authHeader = req.headers.authorization

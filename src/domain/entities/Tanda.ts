@@ -14,8 +14,12 @@ export class Tanda {
     public penaltyPerDay: number,
     public status: TandaStatus,
     public readonly creatorId: number,
-    public readonly createdAt: Date
-  ) {}
+    public readonly createdAt: Date,
+    public startDate: Date | null,
+    existingParticipants: number[] = []
+  ) {
+    this.participants = existingParticipants
+  }
 
   addParticipant(userId: number): void {
     if (this.status !== "created") {
@@ -45,6 +49,7 @@ export class Tanda {
       throw new Error("Tanda cannot be started")
     }
     this.status = "in_progress"
+    this.startDate = new Date()
   }
 
   finish(): void {

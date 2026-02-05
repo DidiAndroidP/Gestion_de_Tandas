@@ -23,4 +23,8 @@ export class Participant {
   expel(): void {
     this.expelled = true
   }
+
+  assignTurn(turn: number): void {
+    this.turn = turn
+  }
 }

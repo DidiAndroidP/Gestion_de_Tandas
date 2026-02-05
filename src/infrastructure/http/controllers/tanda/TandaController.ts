@@ -41,8 +41,12 @@ export class TandaController {
 
   async join(req: Request, res: Response) {
     try {
-      const tandaId = req.body.tandaId;
-      await this.joinTandaUseCase.execute(tandaId, req.user!.userId);
+      const tandaId = Number(req.params.id);
+      
+      const userId = req.user!.userId;
+
+      await this.joinTandaUseCase.execute(tandaId, userId);
+      
       res.status(200).json({ message: "Joined tanda successfully" });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
