@@ -22,9 +22,18 @@ export class MySQLTandaRepository implements TandaRepository {
         tanda.createdAt
       ]
     )
-
-    tanda.id = result.insertId
-    return tanda
+    return new Tanda(
+        result.insertId, 
+        tanda.name,
+        tanda.contributionAmount,
+        tanda.paymentFrequency,
+        tanda.totalMembers,
+        tanda.delayToleranceDays,
+        tanda.penaltyPerDay,
+        tanda.status,
+        tanda.creatorId,
+        tanda.createdAt
+    );
   }
 
   async update(tanda: Tanda): Promise<void> {
@@ -57,10 +66,10 @@ export class MySQLTandaRepository implements TandaRepository {
     )
   }
 
-  async findByCreatorId(creatorId: number): Promise<Tanda[]> {
+  async findByCreadorId(creadorId: number): Promise<Tanda[]> {
     const [rows]: any = await db.execute(
       `SELECT * FROM tandas WHERE creator_id = ?`,
-      [creatorId]
+      [creadorId]
     )
 
     return rows.map((t: any) =>
