@@ -1,37 +1,30 @@
 import { InvitationRepository } from "../../../domain/ports/InvitationRepository"
-import { ParticipantRepository } from "../../../domain/ports/ParticipantRepository"
-import { TandaRepository } from "../../../domain/ports/TandaRepository"
-import { Participant } from "../../../domain/entities/Participant"
+import { JoinTandaUseCase } from "../../use-cases/tanda/JoinTandaUseCase"
 
 export class AcceptInvitationUseCase {
   constructor(
     private readonly invitationRepository: InvitationRepository,
-    private readonly participantRepository: ParticipantRepository,
-    private readonly tandaRepository: TandaRepository
+    private readonly joinTandaUseCase: JoinTandaUseCase
   ) {}
 
   async execute(token: string, userId: number): Promise<void> {
     const invitation = await this.invitationRepository.findByToken(token)
-    if (!invitation) throw new Error("Invitation not found")
+    if (!invitation) {
+      throw new Error(
+        "La invitación no existe, ya expiró o el enlace es inválido."
+      )
+    }
+
+    if (invitation.status !== "pending") {
+      throw new Error(
+        "Esta invitación ya fue utilizada o fue cancelada anteriormente."
+      )
+    }
+
+    await this.joinTandaUseCase.execute(invitation.tandaId, userId)
 
     invitation.accept()
 
-    const tanda = await this.tandaRepository.findById(invitation.tandaId)
-    if (!tanda) throw new Error("Tanda not found")
-
-    tanda.addParticipant(userId)
-
-    const participant = new Participant(
-      0,
-      userId,
-      tanda.id,
-      0,
-      false,
-      false,
-      new Date()
-    )
-
-    await this.participantRepository.save(participant)
-    await this.tandaRepository.update(tanda)
+    await this.invitationRepository.save(invitation)
   }
 }

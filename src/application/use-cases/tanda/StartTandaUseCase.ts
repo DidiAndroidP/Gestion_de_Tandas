@@ -1,12 +1,30 @@
 import { TandaRepository } from "../../../domain/ports/TandaRepository"
+import { ParticipantRepository } from "../../../domain/ports/ParticipantRepository"
 
 export class StartTandaUseCase {
-  constructor(private readonly tandaRepository: TandaRepository) {}
+  constructor(
+    private readonly tandaRepository: TandaRepository,
+    private readonly participantRepository: ParticipantRepository
+  ) {}
 
-  async execute(tandaId: number): Promise<void> {
+  async execute(tandaId: number, userId: number): Promise<void> {
     const tanda = await this.tandaRepository.findById(tandaId)
+
     if (!tanda) {
-      throw new Error("Tanda not found")
+      throw new Error("La tanda no existe.")
+    }
+
+    if (tanda.creatorId !== userId) {
+      throw new Error("Solo el creador puede iniciar la tanda.")
+    }
+
+    const participants = await this.participantRepository.findByTanda(tandaId)
+
+    if (participants.length < tanda.minimumParticipantsToStart()) {
+      throw new Error(
+        `No se puede iniciar la tanda. 
+Se requieren mínimo ${tanda.minimumParticipantsToStart()} participantes y actualmente hay ${participants.length}.`
+      )
     }
 
     tanda.start()

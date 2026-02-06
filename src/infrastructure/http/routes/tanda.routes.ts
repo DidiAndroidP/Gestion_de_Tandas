@@ -6,7 +6,9 @@ const router = Router();
 router.use(authMiddleware);
 
 router.post("/", tandaController.create.bind(tandaController));
-router.post("/:id/join", tandaController.join.bind(tandaController)); 
+router.get("/available", tandaController.getAvailable.bind(tandaController));
+router.post("/:id/leave", tandaController.leave.bind(tandaController))
+router.post("/:id/join", tandaController.join.bind(tandaController));
 router.get("/:id", tandaController.getById.bind(tandaController));
 router.get("/:id/summary", tandaController.getSummary.bind(tandaController));
 router.post("/:id/start", tandaController.start.bind(tandaController));

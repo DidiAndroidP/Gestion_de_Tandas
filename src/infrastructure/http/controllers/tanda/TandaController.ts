@@ -7,6 +7,8 @@ import { FinishTandaUseCase } from "../../../../application/use-cases/tanda/Fini
 import { CloseTandaUseCase } from "../../../../application/use-cases/tanda/CloseTandaUseCase";
 import { GenerateTandaScheduleUseCase } from "../../../../application/use-cases/tanda/GenerateTandaScheduleUseCase";
 import { GetTandaSummaryUseCase } from "../../../../application/use-cases/tanda/GetTandaSummaryUseCase";
+import { GetAvailableTandasUseCase } from "../../../../application/use-cases/tanda/GetAvailableTandasUseCase";
+import { LeaveTandaUseCase } from "../../../../application/use-cases/tanda/LeaveTandaUseCase";
 
 export class TandaController {
   constructor(
@@ -17,84 +19,75 @@ export class TandaController {
     private readonly finishTandaUseCase: FinishTandaUseCase,
     private readonly closeTandaUseCase: CloseTandaUseCase,
     private readonly generateScheduleUseCase: GenerateTandaScheduleUseCase,
-    private readonly getSummaryUseCase: GetTandaSummaryUseCase
+    private readonly getSummaryUseCase: GetTandaSummaryUseCase,
+    private readonly getAvailableTandasUseCase: GetAvailableTandasUseCase,
+    private readonly leaveTandaUseCase: LeaveTandaUseCase
   ) {}
 
   async create(req: Request, res: Response) {
-    try {
-      const dto = { ...req.body, creatorId: req.user!.userId };
-      const tanda = await this.createTandaUseCase.execute(dto);
-      res.status(201).json(tanda);
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-    }
+    const dto = { ...req.body, creatorId: req.user!.userId };
+    const tanda = await this.createTandaUseCase.execute(dto);
+    res.status(201).json(tanda);
   }
 
-  async getById(req: Request, res: Response) {
-    try {
-      const tanda = await this.getTandaByIdUseCase.execute(Number(req.params.id));
-      res.status(200).json(tanda);
-    } catch (error: any) {
-      res.status(404).json({ error: error.message });
-    }
+  async getAvailable(req: Request, res: Response) {
+    const tandas = await this.getAvailableTandasUseCase.execute();
+    res.status(200).json(tandas);
+  }
+
+  async leave(req: Request, res: Response) {
+    const tandaId = Number(req.params.id);
+    const userId = req.user!.userId;
+
+    await this.leaveTandaUseCase.execute(userId, tandaId);
+
+    res.status(200).json({
+      message: "Saliste correctamente de la tanda"
+    });
   }
 
   async join(req: Request, res: Response) {
-    try {
-      const tandaId = Number(req.params.id);
-      
-      const userId = req.user!.userId;
+    const tandaId = Number(req.params.id);
+    const userId = req.user!.userId;
 
-      await this.joinTandaUseCase.execute(tandaId, userId);
-      
-      res.status(200).json({ message: "Joined tanda successfully" });
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-    }
+    await this.joinTandaUseCase.execute(tandaId, userId);
+
+    res.status(200).json({ message: "Te uniste a la tanda" });
+  }
+
+  async getById(req: Request, res: Response) {
+    const tanda = await this.getTandaByIdUseCase.execute(Number(req.params.id));
+    res.status(200).json(tanda);
   }
 
   async start(req: Request, res: Response) {
-    try {
-      await this.startTandaUseCase.execute(Number(req.params.id));
-      res.status(200).json({ message: "Tanda started" });
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-    }
+    await this.startTandaUseCase.execute(
+      Number(req.params.id),
+      req.user!.userId
+    );
+
+    res.status(200).json({ message: "Tanda iniciada" });
   }
 
   async finish(req: Request, res: Response) {
-    try {
-      await this.finishTandaUseCase.execute(Number(req.params.id));
-      res.status(200).json({ message: "Tanda finished" });
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-    }
+    await this.finishTandaUseCase.execute(Number(req.params.id));
+    res.status(200).json({ message: "Tanda finalizada" });
   }
 
   async close(req: Request, res: Response) {
-    try {
-      await this.closeTandaUseCase.execute(Number(req.params.id));
-      res.status(200).json({ message: "Tanda closed" });
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-    }
+    await this.closeTandaUseCase.execute(Number(req.params.id));
+    res.status(200).json({ message: "Tanda cerrada" });
   }
 
   async generateSchedule(req: Request, res: Response) {
-    try {
-      await this.generateScheduleUseCase.execute(Number(req.params.id));
-      res.status(200).json({ message: "Schedule generated" });
-    } catch (error: any) {
-      res.status(400).json({ error: error.message });
-    }
+    await this.generateScheduleUseCase.execute(Number(req.params.id));
+    res.status(200).json({ message: "Calendario generado" });
   }
 
   async getSummary(req: Request, res: Response) {
-    try {
-      const summary = await this.getSummaryUseCase.execute(Number(req.params.id));
-      res.status(200).json(summary);
-    } catch (error: any) {
-      res.status(404).json({ error: error.message });
-    }
+    const summary = await this.getSummaryUseCase.execute(
+      Number(req.params.id)
+    );
+    res.status(200).json(summary);
   }
 }

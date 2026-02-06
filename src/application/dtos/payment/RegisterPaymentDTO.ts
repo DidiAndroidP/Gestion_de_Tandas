@@ -1,5 +1,6 @@
 export interface RegisterPaymentDTO {
-  participantId: number
+  userId: number
+  tandaId: number
   period: number
   amount: number
   paymentDate: Date
