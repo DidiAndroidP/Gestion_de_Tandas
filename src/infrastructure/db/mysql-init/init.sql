@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS tandas_db;
-USE tandas_db;
+CREATE DATABASE IF NOT EXISTS tandas_db_new;
+USE tandas_db_new;
 
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
