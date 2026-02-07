@@ -2,7 +2,7 @@ services:
   app:
     build: .
     ports:
-      - "${PORT}:${PORT}" 
+      - "${PORT}:${PORT}"
     environment:
       - PORT=${PORT}
       - DB_HOST=${DB_HOST}
@@ -10,7 +10,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
       - JWT_SECRET=${JWT_SECRET}
-    restart: always 
+    restart: always
     depends_on:
       db:
         condition: service_healthy
@@ -24,8 +24,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
     ports:
       - "3306:3306"
     volumes:
@@ -34,7 +32,7 @@ services:
     networks:
       - tandas-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      test: "mysqladmin ping -h localhost -u root -p${DB_PASSWORD}"
       interval: 10s
       timeout: 5s
       retries: 5
