@@ -20,10 +20,10 @@ export class StartTandaUseCase {
 
     const participants = await this.participantRepository.findByTanda(tandaId)
 
-    if (participants.length < tanda.minimumParticipantsToStart()) {
+    if (!tanda.canStartWith(participants.length)) {
       throw new Error(
-        `No se puede iniciar la tanda. 
-Se requieren mínimo ${tanda.minimumParticipantsToStart()} participantes y actualmente hay ${participants.length}.`
+        `No se puede iniciar la tanda.
+Se requieren ${tanda.totalMembers} participantes y actualmente hay ${participants.length}.`
       )
     }
 

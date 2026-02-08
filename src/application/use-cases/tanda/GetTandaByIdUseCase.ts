@@ -1,18 +1,32 @@
 import { TandaRepository } from "../../../domain/ports/TandaRepository"
-import { TandaResponseDTO } from "../../dtos/tanda/TandaResponseDTO"
+import { ParticipantRepository } from "../../../domain/ports/ParticipantRepository"
+import { TandaResponseDTO, TandaStatusDTO } from "../../dtos/tanda/TandaResponseDTO"
 
 export class GetTandaByIdUseCase {
-  constructor(private readonly tandaRepository: TandaRepository) {}
+  constructor(
+    private readonly tandaRepository: TandaRepository,
+    private readonly participantRepository: ParticipantRepository
+  ) {}
 
-  async execute(id: number): Promise<TandaResponseDTO> {
-    const tanda = await this.tandaRepository.findById(id)
+  private mapStatus(status: string): TandaStatusDTO {
+    switch (status) {
+      case "created":
+        return "CREATED"
+      case "in_progress":
+        return "IN_PROGRESS"
+      case "finished":
+        return "FINISHED"
+      default:
+        throw new Error("Invalid tanda status")
+    }
+  }
+
+  async execute(tandaId: number, userId: number): Promise<TandaResponseDTO> {
+    const tanda = await this.tandaRepository.findById(tandaId)
     if (!tanda) throw new Error("Tanda not found")
 
-    const statusMap: Record<string, "CREATED" | "IN_PROGRESS" | "FINISHED"> = {
-      created: "CREATED",
-      in_progress: "IN_PROGRESS",
-      finished: "FINISHED"
-    }
+    const participant =
+      await this.participantRepository.findByUserAndTanda(userId, tandaId)
 
     return {
       id: tanda.id,
@@ -20,7 +34,8 @@ export class GetTandaByIdUseCase {
       contributionAmount: tanda.contributionAmount,
       totalMembers: tanda.totalMembers,
       currentMembers: tanda.currentParticipants(),
-      status: statusMap[tanda.status]
+      status: this.mapStatus(tanda.status),
+      isMember: participant !== null
     }
   }
 }

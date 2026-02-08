@@ -1,41 +1,40 @@
-import { Tanda } from "../../../domain/entities/Tanda";
-import { TandaRepository } from "../../../domain/ports/TandaRepository";
-
-interface CreateTandaDTO {
-  name: string;
-  contributionAmount: number;
-  paymentFrequency: "weekly" | "biweekly" | "monthly";
-  totalMembers: number;
-  delayToleranceDays: number;
-  penaltyPerDay: number;
-  creatorId: number;
-}
+import { TandaRepository } from "../../../domain/ports/TandaRepository"
+import { ParticipantRepository } from "../../../domain/ports/ParticipantRepository"
+import { Tanda } from "../../../domain/entities/Tanda"
+import { Participant } from "../../../domain/entities/Participant"
 
 export class CreateTandaUseCase {
   constructor(
-    private readonly tandaRepository: TandaRepository
+    private readonly tandaRepository: TandaRepository,
+    private readonly participantRepository: ParticipantRepository
   ) {}
 
-  async execute(dto: CreateTandaDTO): Promise<Tanda> {
-    const tanda = new Tanda(
-      0,                          // id (MySQL lo genera)
-      dto.name,
-      dto.contributionAmount,
-      dto.paymentFrequency,
-      dto.totalMembers,
-      dto.delayToleranceDays,
-      dto.penaltyPerDay,
-      "created",                  // status inicial
+  async execute(dto: {
+    name: string
+    contributionAmount: number
+    paymentFrequency: string
+    totalMembers: number
+    delayToleranceDays: number
+    penaltyPerDay: number
+    creatorId: number
+  }): Promise<Tanda> {
+
+    const tanda = Tanda.create(dto)
+
+    await this.tandaRepository.save(tanda)
+
+    const creatorParticipant = new Participant(
+      0,
       dto.creatorId,
-      new Date(),                 // createdAt
-      null,                       // startedAt
-      []                           // participants
-    );
+      tanda.id,
+      0,
+      false,
+      false,
+      new Date()
+    )
 
-    // 👇 Guardamos pero NO retornamos el save
-    await this.tandaRepository.save(tanda);
+    await this.participantRepository.save(creatorParticipant)
 
-    // 👇 El UseCase retorna la entidad
-    return tanda;
+    return tanda
   }
 }

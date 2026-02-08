@@ -1,73 +1,88 @@
-import { ParticipantRepository } from "../../../../domain/ports/ParticipantRepository";
-import { Participant } from "../../../../domain/entities/Participant";
-import { db } from "../MySQLConnection";
+import { ParticipantRepository } from "../../../../domain/ports/ParticipantRepository"
+import { Participant } from "../../../../domain/entities/Participant"
+import { db } from "../MySQLConnection"
 
 export class MySQLParticipantRepository implements ParticipantRepository {
 
   async save(participant: Participant): Promise<void> {
     await db.execute(
-      `INSERT INTO participants 
-      (user_id, tanda_id, turn, already_paid, expelled, created_at)
-      VALUES (?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO participants (user_id, tanda_id, turn, already_paid, expelled)
+       VALUES (?, ?, ?, ?, ?)`,
       [
         participant.userId,
         participant.tandaId,
         participant.turn,
         participant.alreadyPaid,
-        participant.expelled,
-        participant.createdAt
+        participant.expelled
       ]
-    );
+    )
   }
 
-  async findByUserAndTanda(
-    userId: number,
-    tandaId: number
-  ): Promise<Participant | null> {
-
-    const [rows]: any = await db.execute(
+  async findByUserAndTanda(userId: number, tandaId: number): Promise<Participant | null> {
+    const [rows] = await db.execute(
       `SELECT * FROM participants WHERE user_id = ? AND tanda_id = ?`,
       [userId, tandaId]
-    );
+    )
 
-    if (rows.length === 0) return null;
+    const data = rows as any[]
+    if (!data.length) return null
 
-    const row = rows[0];
-
+    const p = data[0]
     return new Participant(
-      row.id,
-      row.user_id,
-      row.tanda_id,
-      row.turn,
-      Boolean(row.already_paid),
-      Boolean(row.expelled),
-      row.created_at
-    );
+      p.id,
+      p.user_id,
+      p.tanda_id,
+      p.turn,
+      Boolean(p.already_paid),
+      Boolean(p.expelled),
+      new Date(p.created_at)
+    )
   }
 
   async findByTanda(tandaId: number): Promise<Participant[]> {
-    const [rows]: any = await db.execute(
+    const [rows] = await db.execute(
       `SELECT * FROM participants WHERE tanda_id = ?`,
       [tandaId]
-    );
+    )
 
-    return rows.map((row: any) =>
+    return (rows as any[]).map(p =>
       new Participant(
-        row.id,
-        row.user_id,
-        row.tanda_id,
-        row.turn,
-        Boolean(row.already_paid),
-        Boolean(row.expelled),
-        row.created_at
+        p.id,
+        p.user_id,
+        p.tanda_id,
+        p.turn,
+        Boolean(p.already_paid),
+        Boolean(p.expelled),
+        new Date(p.created_at)
       )
-    );
+    )
+  }
+
+  async findDetailedByTanda(tandaId: number) {
+    const [rows] = await db.execute(
+      `SELECT 
+        u.id as userId,
+        u.name,
+        NULL as photo,
+        p.already_paid as alreadyPaid
+      FROM participants p
+      JOIN users u ON u.id = p.user_id
+      WHERE p.tanda_id = ?`,
+      [tandaId]
+    )
+
+    return rows as {
+      userId: number
+      name: string
+      photo: string | null
+      alreadyPaid: boolean
+    }[]
   }
 
   async delete(userId: number, tandaId: number): Promise<void> {
     await db.execute(
       `DELETE FROM participants WHERE user_id = ? AND tanda_id = ?`,
       [userId, tandaId]
-    );
+    )
   }
 }

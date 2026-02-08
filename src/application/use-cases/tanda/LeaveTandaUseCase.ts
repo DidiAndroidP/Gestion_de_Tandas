@@ -5,26 +5,20 @@ export class LeaveTandaUseCase {
   constructor(
     private readonly participantRepository: ParticipantRepository,
     private readonly tandaRepository: TandaRepository
-  ) {}
+  ) { }
 
   async execute(userId: number, tandaId: number): Promise<void> {
-    const tanda = await this.tandaRepository.findById(tandaId);
+    const tanda = await this.tandaRepository.findById(tandaId)
+    if (!tanda) throw new Error("Tanda not found")
 
-    if (!tanda) {
-      throw new Error("La tanda no existe");
+    if (tanda.status !== "created") {
+      throw new Error("No puedes salir de una tanda iniciada")
     }
 
-    if (tanda.isStarted()) {
-      throw new Error("No puedes salir de una tanda iniciada");
+    if (tanda.creatorId === userId) {
+      throw new Error("El creador no puede salirse de la tanda")
     }
 
-    const participant =
-      await this.participantRepository.findByUserAndTanda(userId, tandaId);
-
-    if (!participant) {
-      throw new Error("No perteneces a esta tanda");
-    }
-
-    await this.participantRepository.delete(userId, tandaId);
+    await this.participantRepository.delete(userId, tandaId)
   }
 }

@@ -1,14 +1,21 @@
-import { Participant } from "../entities/Participant";
+import { Participant } from "../entities/Participant"
 
 export interface ParticipantRepository {
-  save(participant: Participant): Promise<void>;
+  save(participant: Participant): Promise<void>
 
   findByUserAndTanda(
     userId: number,
     tandaId: number
-  ): Promise<Participant | null>;
+  ): Promise<Participant | null>
 
-  findByTanda(tandaId: number): Promise<Participant[]>;
+  findByTanda(tandaId: number): Promise<Participant[]>
 
-  delete(userId: number, tandaId: number): Promise<void>;
+  findDetailedByTanda(tandaId: number): Promise<{
+    userId: number
+    name: string
+    photo: string | null
+    alreadyPaid: boolean
+  }[]>
+
+  delete(userId: number, tandaId: number): Promise<void>
 }

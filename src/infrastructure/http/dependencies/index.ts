@@ -22,6 +22,8 @@ import { GenerateTandaScheduleUseCase } from "../../../application/use-cases/tan
 import { GetTandaSummaryUseCase } from "../../../application/use-cases/tanda/GetTandaSummaryUseCase"
 import { GetAvailableTandasUseCase } from "../../../application/use-cases/tanda/GetAvailableTandasUseCase"
 import { LeaveTandaUseCase } from "../../../application/use-cases/tanda/LeaveTandaUseCase"
+import { GetTandaMembersUseCase } from "../../../application/use-cases/tanda/GetTandaMembersUseCase"
+import { UpdateTandaStatusUseCase } from "../../../application/use-cases/tanda/UpdateTandaStatusUseCase"
 
 import { CreateInvitationUseCase } from "../../../application/use-cases/invitation/CreateInvitationUseCase"
 import { AcceptInvitationUseCase } from "../../../application/use-cases/invitation/AcceptInvitationUseCase"
@@ -44,7 +46,6 @@ const paymentRepo = new MySQLPaymentRepository()
 const invitationRepo = new MySQLInvitationRepository()
 const authRepo = new BcryptJwtAuthRepository()
 
-
 const turnService = new TurnService()
 
 export const authMiddleware = createAuthMiddleware(authRepo)
@@ -55,9 +56,8 @@ const getUserByIdUseCase = new GetUserByIdUseCase(userRepo)
 const updateUserUseCase = new UpdateUserUseCase(userRepo)
 const activateUserUseCase = new ActivateUserUseCase(userRepo)
 
-
-const createTandaUseCase = new CreateTandaUseCase(tandaRepo)
-const getTandaByIdUseCase = new GetTandaByIdUseCase(tandaRepo)
+const createTandaUseCase = new CreateTandaUseCase(tandaRepo, participantRepo)
+const getTandaByIdUseCase = new GetTandaByIdUseCase(tandaRepo, participantRepo)
 const joinTandaUseCase = new JoinTandaUseCase(tandaRepo, participantRepo)
 const startTandaUseCase = new StartTandaUseCase(tandaRepo, participantRepo)
 const finishTandaUseCase = new FinishTandaUseCase(tandaRepo)
@@ -74,22 +74,27 @@ const getSummaryUseCase = new GetTandaSummaryUseCase(
   paymentRepo
 )
 
-const getAvailableTandasUseCase = new GetAvailableTandasUseCase(
-  tandaRepo
-)
+const getAvailableTandasUseCase = new GetAvailableTandasUseCase(tandaRepo)
 
 const leaveTandaUseCase = new LeaveTandaUseCase(
   participantRepo,
   tandaRepo
 )
 
+const getTandaMembersUseCase = new GetTandaMembersUseCase(
+  participantRepo,
+  userRepo
+)
+
+const updateTandaStatusUseCase = new UpdateTandaStatusUseCase(
+  tandaRepo,
+)
 
 const createInvitationUseCase = new CreateInvitationUseCase(invitationRepo)
 const acceptInvitationUseCase = new AcceptInvitationUseCase(
   invitationRepo,
   joinTandaUseCase
 )
-
 
 const registerPaymentUseCase = new RegisterPaymentUseCase(
   paymentRepo,
@@ -100,7 +105,6 @@ const notifyLatePaymentsUseCase = new NotifyLatePaymentsUseCase(
   paymentRepo,
   tandaRepo
 )
-
 
 export const authController = new AuthController(
   createUserUseCase,
@@ -123,7 +127,9 @@ export const tandaController = new TandaController(
   generateScheduleUseCase,
   getSummaryUseCase,
   getAvailableTandasUseCase,
-  leaveTandaUseCase
+  leaveTandaUseCase,
+  getTandaMembersUseCase,
+  updateTandaStatusUseCase
 )
 
 export const invitationController = new InvitationController(
