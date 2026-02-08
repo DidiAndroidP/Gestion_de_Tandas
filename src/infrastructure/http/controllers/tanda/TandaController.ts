@@ -11,7 +11,7 @@ import { GenerateTandaScheduleUseCase } from "../../../../application/use-cases/
 import { GetTandaSummaryUseCase } from "../../../../application/use-cases/tanda/GetTandaSummaryUseCase"
 import { GetAvailableTandasUseCase } from "../../../../application/use-cases/tanda/GetAvailableTandasUseCase"
 import { LeaveTandaUseCase } from "../../../../application/use-cases/tanda/LeaveTandaUseCase"
-
+import { DeleteTandaUseCase } from "../../../../application/use-cases/tanda/DeleteTandaUseCase"
 export class TandaController {
   constructor(
     private readonly createTandaUseCase: CreateTandaUseCase,
@@ -25,8 +25,9 @@ export class TandaController {
     private readonly getAvailableTandasUseCase: GetAvailableTandasUseCase,
     private readonly leaveTandaUseCase: LeaveTandaUseCase,
     private readonly getMembersUseCase: GetTandaMembersUseCase,
-    private readonly updateStatusUseCase: UpdateTandaStatusUseCase
-  ) {}
+    private readonly updateStatusUseCase: UpdateTandaStatusUseCase,
+    private readonly deleteTandaUseCase: DeleteTandaUseCase
+  ) { }
 
   async create(req: Request, res: Response) {
     const tanda = await this.createTandaUseCase.execute({
@@ -115,5 +116,16 @@ export class TandaController {
       Number(req.params.id)
     )
     res.status(200).json({ message: "Saliste de la tanda" })
+  }
+
+  async delete(req: Request, res: Response) {
+    await this.deleteTandaUseCase.execute(
+      Number(req.params.id),
+      req.user!.userId
+    )
+
+    res.status(200).json({
+      message: "Tanda eliminada correctamente"
+    })
   }
 }

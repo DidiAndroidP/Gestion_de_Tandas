@@ -24,6 +24,8 @@ import { GetAvailableTandasUseCase } from "../../../application/use-cases/tanda/
 import { LeaveTandaUseCase } from "../../../application/use-cases/tanda/LeaveTandaUseCase"
 import { GetTandaMembersUseCase } from "../../../application/use-cases/tanda/GetTandaMembersUseCase"
 import { UpdateTandaStatusUseCase } from "../../../application/use-cases/tanda/UpdateTandaStatusUseCase"
+import { DeleteTandaUseCase } from "../../../application/use-cases/tanda/DeleteTandaUseCase"
+
 
 import { CreateInvitationUseCase } from "../../../application/use-cases/invitation/CreateInvitationUseCase"
 import { AcceptInvitationUseCase } from "../../../application/use-cases/invitation/AcceptInvitationUseCase"
@@ -62,6 +64,8 @@ const joinTandaUseCase = new JoinTandaUseCase(tandaRepo, participantRepo)
 const startTandaUseCase = new StartTandaUseCase(tandaRepo, participantRepo)
 const finishTandaUseCase = new FinishTandaUseCase(tandaRepo)
 const closeTandaUseCase = new CloseTandaUseCase(tandaRepo)
+const deleteTandaUseCase = new DeleteTandaUseCase(tandaRepo)
+
 
 const generateScheduleUseCase = new GenerateTandaScheduleUseCase(
   participantRepo,
@@ -129,7 +133,8 @@ export const tandaController = new TandaController(
   getAvailableTandasUseCase,
   leaveTandaUseCase,
   getTandaMembersUseCase,
-  updateTandaStatusUseCase
+  updateTandaStatusUseCase,
+  deleteTandaUseCase
 )
 
 export const invitationController = new InvitationController(

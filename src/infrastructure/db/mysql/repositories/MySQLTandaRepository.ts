@@ -79,4 +79,12 @@ export class MySQLTandaRepository implements TandaRepository {
       )
     )
   }
+
+  async deleteById(id: number): Promise<void> {
+    await db.query(
+      "DELETE FROM tandas WHERE id = ?",
+      [id]
+    )
+  }
+  
 }

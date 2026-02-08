@@ -17,5 +17,6 @@ router.post("/:id/close", tandaController.close.bind(tandaController));
 router.post("/:id/schedule", tandaController.generateSchedule.bind(tandaController));
 router.get("/:id/members", tandaController.members.bind(tandaController))
 router.patch("/:id/status", tandaController.updateStatus.bind(tandaController))
+router.delete("/:id/delete", tandaController.delete.bind(tandaController))
 
 export { router as tandaRouter };

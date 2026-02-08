@@ -11,4 +11,6 @@ export interface TandaResponseDTO {
   currentMembers: number
   status: TandaStatusDTO
   isMember: boolean
+  creatorId: number
+  isAdmin: boolean
 }

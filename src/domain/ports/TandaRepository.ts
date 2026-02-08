@@ -5,4 +5,5 @@ export interface TandaRepository {
   save(tanda: Tanda): Promise<number>
   update(tanda: Tanda): Promise<void>
   findAvailable(): Promise<Tanda[]>
+  deleteById(id: number): Promise<void>
 }
