@@ -21,12 +21,14 @@ export class CreateTandaUseCase {
 
     const tanda = Tanda.create(dto)
 
-    await this.tandaRepository.save(tanda)
+    const tandaId = await this.tandaRepository.save(tanda)
+
+    tanda.setId(tandaId)
 
     const creatorParticipant = new Participant(
       0,
       dto.creatorId,
-      tanda.id,
+      tandaId,
       0,
       false,
       false,
@@ -34,6 +36,8 @@ export class CreateTandaUseCase {
     )
 
     await this.participantRepository.save(creatorParticipant)
+
+    tanda.incrementParticipants()
 
     return tanda
   }

@@ -28,12 +28,12 @@ export class MySQLTandaRepository implements TandaRepository {
     )
   }
 
-  async save(tanda: Tanda): Promise<void> {
-    await db.query(
+  async save(tanda: Tanda): Promise<number> {
+    const [result]: any = await db.query(
       `INSERT INTO tandas
-       (name, contribution_amount, payment_frequency, total_members,
-        delay_tolerance_days, penalty_per_day, status, creator_id, created_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     (name, contribution_amount, payment_frequency, total_members,
+      delay_tolerance_days, penalty_per_day, status, creator_id, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         tanda.name,
         tanda.contributionAmount,
@@ -46,6 +46,8 @@ export class MySQLTandaRepository implements TandaRepository {
         tanda.createdAt
       ]
     )
+
+    return result.insertId
   }
 
   async update(tanda: Tanda): Promise<void> {

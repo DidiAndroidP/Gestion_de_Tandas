@@ -4,7 +4,7 @@ export class Tanda {
   private participants: number = 0
 
   constructor(
-    public readonly id: number,
+    public id: number,
     public readonly name: string,
     public readonly contributionAmount: number,
     public readonly paymentFrequency: string,
@@ -14,7 +14,7 @@ export class Tanda {
     public status: TandaStatus,
     public readonly creatorId: number,
     public readonly createdAt: Date
-  ) { }
+  ) {}
 
   static create(props: {
     name: string
@@ -37,6 +37,10 @@ export class Tanda {
       props.creatorId,
       new Date()
     )
+  }
+
+  setId(id: number): void {
+    this.id = id
   }
 
   incrementParticipants(): void {
