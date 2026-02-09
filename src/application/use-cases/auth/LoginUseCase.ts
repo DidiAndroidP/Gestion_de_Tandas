@@ -19,7 +19,7 @@ export class LoginUseCase {
       dto.password,
       user.passwordHash
     )
-    
+
     if (!isValid) {
       user.registerFailedAttempt()
       await this.userRepository.update(user)
@@ -37,8 +37,8 @@ export class LoginUseCase {
     })
 
     if (user.failedAttempts > 0) {
-        user.activate()
-        await this.userRepository.update(user)
+      user.activate()
+      await this.userRepository.update(user)
     }
 
     return {
@@ -47,6 +47,8 @@ export class LoginUseCase {
         id: user.id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        role: user.role,
         active: user.active,
         createdAt: user.createdAt
       }
