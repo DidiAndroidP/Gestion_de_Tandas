@@ -40,11 +40,12 @@ CREATE TABLE IF NOT EXISTS invitations (
     token VARCHAR(255) NOT NULL,
     CONSTRAINT uq_invitations_token UNIQUE (token),
     CONSTRAINT fk_invitations_tanda
-        FOREIGN KEY (tanda_id) REFERENCES tandas(id),
+        FOREIGN KEY (tanda_id)
+        REFERENCES tandas(id)
+        ON DELETE CASCADE,
     INDEX idx_invitations_tanda (tanda_id),
     INDEX idx_invitations_email (email)
 );
-
 
 CREATE TABLE IF NOT EXISTS participants (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -58,11 +59,12 @@ CREATE TABLE IF NOT EXISTS participants (
     CONSTRAINT fk_participants_user
         FOREIGN KEY (user_id) REFERENCES users(id),
     CONSTRAINT fk_participants_tanda
-        FOREIGN KEY (tanda_id) REFERENCES tandas(id),
+        FOREIGN KEY (tanda_id)
+        REFERENCES tandas(id)
+        ON DELETE CASCADE,
     INDEX idx_participants_tanda (tanda_id),
     INDEX idx_participants_user (user_id)
 );
-
 
 CREATE TABLE IF NOT EXISTS payments (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -74,7 +76,9 @@ CREATE TABLE IF NOT EXISTS payments (
     payment_date DATETIME,
     penalty DECIMAL(10,2) DEFAULT 0,
     CONSTRAINT fk_payments_participant
-        FOREIGN KEY (participant_id) REFERENCES participants(id),
+        FOREIGN KEY (participant_id)
+        REFERENCES participants(id)
+        ON DELETE CASCADE,
     INDEX idx_payments_participant (participant_id),
     INDEX idx_payments_status (status),
     INDEX idx_payments_period (period)
