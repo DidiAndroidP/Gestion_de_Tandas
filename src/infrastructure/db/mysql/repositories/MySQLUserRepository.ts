@@ -35,10 +35,19 @@ export class MySQLUserRepository implements UserRepository {
 
   async update(user: User): Promise<void> {
     await db.execute(
-      `UPDATE users SET active = ?, failed_attempts = ? WHERE id = ?`,
-      [user.active, user.failedAttempts, user.id]
+      `UPDATE users 
+     SET name = ?, phone = ?, active = ?, failed_attempts = ?
+     WHERE id = ?`,
+      [
+        user.name,
+        user.phone,
+        user.active,
+        user.failedAttempts,
+        user.id
+      ]
     )
   }
+
 
   async findById(id: number): Promise<User | null> {
     const [rows]: any = await db.execute(

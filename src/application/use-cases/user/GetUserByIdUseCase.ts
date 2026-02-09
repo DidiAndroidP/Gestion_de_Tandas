@@ -2,7 +2,9 @@ import { UserRepository } from "../../../domain/ports/UserRepository"
 import { UserResponseDTO } from "../../dtos/user/UserResponseDTO"
 
 export class GetUserByIdUseCase {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository
+  ) {}
 
   async execute(id: number): Promise<UserResponseDTO> {
     const user = await this.userRepository.findById(id)
@@ -14,6 +16,8 @@ export class GetUserByIdUseCase {
       id: user.id,
       name: user.name,
       email: user.email,
+      phone: user.phone,
+      role: user.role,
       active: user.active,
       createdAt: user.createdAt
     }
