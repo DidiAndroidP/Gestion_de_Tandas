@@ -23,12 +23,13 @@ export class CreateUserUseCase {
       dto.email,
       hashedPassword, 
       dto.phone ?? null,
+      dto.photo ?? null,
       "user",
       true,
       0,
       new Date()
     )
 
-    return this.userRepository.save(user)
+    return this.userRepository.save(user).then(() => user)
   }
 }

@@ -17,6 +17,7 @@ export class GetUserByIdUseCase {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      photo: user.photo,
       role: user.role,
       active: user.active,
       createdAt: user.createdAt

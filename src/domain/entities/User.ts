@@ -7,11 +7,20 @@ export class User {
     public email: string,
     public passwordHash: string,
     public phone: string | null,
+    public photo: string | null,  
     public role: UserRole,
     public active: boolean,
     public failedAttempts: number,
     public readonly createdAt: Date
   ) {}
+  
+  updatePhoto(photoUrl: string | null): void {
+    this.photo = photoUrl
+  }
+
+  hasPhoto(): boolean {
+    return this.photo !== null && this.photo !== ""
+  }
 
   activate(): void {
     this.active = true

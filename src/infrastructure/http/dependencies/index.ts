@@ -1,8 +1,8 @@
-import { MySQLUserRepository } from "../../db/mysql/repositories/MySQLUserRepository"
-import { MySQLTandaRepository } from "../../db/mysql/repositories/MySQLTandaRepository"
-import { MySQLParticipantRepository } from "../../db/mysql/repositories/MySQLParticipantRepository"
-import { MySQLPaymentRepository } from "../../db/mysql/repositories/MySQLPaymentRepository"
-import { MySQLInvitationRepository } from "../../db/mysql/repositories/MySQLInvitationRepository"
+import { MySQLUserRepository } from "../../db/repositories/MySQLUserRepository"
+import { MySQLTandaRepository } from "../../db/repositories/MySQLTandaRepository"
+import { MySQLParticipantRepository } from "../../db/repositories/MySQLParticipantRepository"
+import { MySQLPaymentRepository } from "../../db/repositories/MySQLPaymentRepository"
+import { MySQLInvitationRepository } from "../../db/repositories/MySQLInvitationRepository"
 import { BcryptJwtAuthRepository } from "../../auth/BcryptJwtAuthRepository"
 import { TurnService } from "../../../domain/services/TurnService"
 
@@ -11,6 +11,7 @@ import { LoginUseCase } from "../../../application/use-cases/auth/LoginUseCase"
 import { GetUserByIdUseCase } from "../../../application/use-cases/user/GetUserByIdUseCase"
 import { UpdateUserUseCase } from "../../../application/use-cases/user/UpdateUserUseCase"
 import { ActivateUserUseCase } from "../../../application/use-cases/user/ActivateUserUseCase"
+import { UploadUserPhotoUseCase } from "../../../application/use-cases/user/UploadUserPhotoUseCase"
 
 import { CreateTandaUseCase } from "../../../application/use-cases/tanda/CreateTandaUseCase"
 import { GetTandaByIdUseCase } from "../../../application/use-cases/tanda/GetTandaByIdUseCase"
@@ -25,7 +26,6 @@ import { LeaveTandaUseCase } from "../../../application/use-cases/tanda/LeaveTan
 import { GetTandaMembersUseCase } from "../../../application/use-cases/tanda/GetTandaMembersUseCase"
 import { UpdateTandaStatusUseCase } from "../../../application/use-cases/tanda/UpdateTandaStatusUseCase"
 import { DeleteTandaUseCase } from "../../../application/use-cases/tanda/DeleteTandaUseCase"
-
 
 import { CreateInvitationUseCase } from "../../../application/use-cases/invitation/CreateInvitationUseCase"
 import { AcceptInvitationUseCase } from "../../../application/use-cases/invitation/AcceptInvitationUseCase"
@@ -57,6 +57,7 @@ const loginUseCase = new LoginUseCase(userRepo, authRepo)
 const getUserByIdUseCase = new GetUserByIdUseCase(userRepo)
 const updateUserUseCase = new UpdateUserUseCase(userRepo)
 const activateUserUseCase = new ActivateUserUseCase(userRepo)
+const uploadUserPhotoUseCase = new UploadUserPhotoUseCase(userRepo)
 
 const createTandaUseCase = new CreateTandaUseCase(tandaRepo, participantRepo)
 const getTandaByIdUseCase = new GetTandaByIdUseCase(tandaRepo, participantRepo)
@@ -65,7 +66,6 @@ const startTandaUseCase = new StartTandaUseCase(tandaRepo, participantRepo)
 const finishTandaUseCase = new FinishTandaUseCase(tandaRepo)
 const closeTandaUseCase = new CloseTandaUseCase(tandaRepo)
 const deleteTandaUseCase = new DeleteTandaUseCase(tandaRepo)
-
 
 const generateScheduleUseCase = new GenerateTandaScheduleUseCase(
   participantRepo,
@@ -118,7 +118,8 @@ export const authController = new AuthController(
 export const userController = new UserController(
   getUserByIdUseCase,
   updateUserUseCase,
-  activateUserUseCase
+  activateUserUseCase,
+  uploadUserPhotoUseCase
 )
 
 export const tandaController = new TandaController(
