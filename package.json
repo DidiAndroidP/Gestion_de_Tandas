@@ -8,6 +8,10 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "nodemon server.ts",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "npm run typeorm migration:generate -- -d src/infrastructure/db/data-source.ts",
+    "migration:run": "npm run typeorm migration:run -- -d src/infrastructure/db/data-source.ts",
+    "migration:revert": "npm run typeorm migration:revert -- -d src/infrastructure/db/data-source.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -15,19 +19,25 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.990.0",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "mysql2": "^3.16.3"
+    "multer": "^2.0.2",
+    "mysql2": "^3.16.3",
+    "reflect-metadata": "^0.2.2",
+    "sharp": "^0.34.5",
+    "typeorm": "^0.3.28"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^25.2.0",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^25.2.3",
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"

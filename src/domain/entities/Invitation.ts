@@ -1,4 +1,4 @@
-export type InvitationStatus = "pending" | "accepted" | "rejected"
+export type InvitationStatus = "pending" | "accepted" | "rejected" | "expired"
 
 export class Invitation {
   constructor(
@@ -18,5 +18,11 @@ export class Invitation {
 
   reject(): void {
     this.status = "rejected"
+  }
+  
+  expire(): void {
+    if (this.status === "pending") {
+        this.status = "expired";
+    }
   }
 }
