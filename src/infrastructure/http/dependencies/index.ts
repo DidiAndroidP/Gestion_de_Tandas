@@ -1,3 +1,8 @@
+import { MySQLTandaRepository } from "../../db/mysql/repositories/MySQLTandaRepository"
+import { MySQLUserRepository } from "../../db/mysql/repositories/MySQLUserRepository"
+import { MySQLParticipantRepository } from "../../db/mysql/repositories/MySQLParticipantRepository"
+import { MySQLPaymentRepository } from "../../db/mysql/repositories/MySQLPaymentRepository"
+import { MySQLInvitationRepository } from "../../db/mysql/repositories/MySQLInvitationRepository"
 import { MySQLUserRepository } from "../../db/repositories/MySQLUserRepository"
 import { MySQLTandaRepository } from "../../db/repositories/MySQLTandaRepository"
 import { MySQLParticipantRepository } from "../../db/repositories/MySQLParticipantRepository"
@@ -5,20 +10,19 @@ import { MySQLPaymentRepository } from "../../db/repositories/MySQLPaymentReposi
 import { MySQLInvitationRepository } from "../../db/repositories/MySQLInvitationRepository"
 import { BcryptJwtAuthRepository } from "../../auth/BcryptJwtAuthRepository"
 import { TurnService } from "../../../domain/services/TurnService"
-
 import { CreateUserUseCase } from "../../../application/use-cases/user/CreateUserUseCase"
 import { LoginUseCase } from "../../../application/use-cases/auth/LoginUseCase"
 import { GetUserByIdUseCase } from "../../../application/use-cases/user/GetUserByIdUseCase"
 import { UpdateUserUseCase } from "../../../application/use-cases/user/UpdateUserUseCase"
 import { ActivateUserUseCase } from "../../../application/use-cases/user/ActivateUserUseCase"
 import { UploadUserPhotoUseCase } from "../../../application/use-cases/user/UploadUserPhotoUseCase"
-
 import { CreateTandaUseCase } from "../../../application/use-cases/tanda/CreateTandaUseCase"
 import { GetTandaByIdUseCase } from "../../../application/use-cases/tanda/GetTandaByIdUseCase"
 import { JoinTandaUseCase } from "../../../application/use-cases/tanda/JoinTandaUseCase"
 import { StartTandaUseCase } from "../../../application/use-cases/tanda/StartTandaUseCase"
 import { FinishTandaUseCase } from "../../../application/use-cases/tanda/FinishTandaUseCase"
 import { CloseTandaUseCase } from "../../../application/use-cases/tanda/CloseTandaUseCase"
+import { DeleteTandaUseCase } from "../../../application/use-cases/tanda/DeleteTandaUseCase"
 import { GenerateTandaScheduleUseCase } from "../../../application/use-cases/tanda/GenerateTandaScheduleUseCase"
 import { GetTandaSummaryUseCase } from "../../../application/use-cases/tanda/GetTandaSummaryUseCase"
 import { GetAvailableTandasUseCase } from "../../../application/use-cases/tanda/GetAvailableTandasUseCase"
@@ -26,23 +30,19 @@ import { LeaveTandaUseCase } from "../../../application/use-cases/tanda/LeaveTan
 import { GetTandaMembersUseCase } from "../../../application/use-cases/tanda/GetTandaMembersUseCase"
 import { UpdateTandaStatusUseCase } from "../../../application/use-cases/tanda/UpdateTandaStatusUseCase"
 import { DeleteTandaUseCase } from "../../../application/use-cases/tanda/DeleteTandaUseCase"
-
 import { CreateInvitationUseCase } from "../../../application/use-cases/invitation/CreateInvitationUseCase"
 import { AcceptInvitationUseCase } from "../../../application/use-cases/invitation/AcceptInvitationUseCase"
-
 import { RegisterPaymentUseCase } from "../../../application/use-cases/payment/RegisterPaymentUseCase"
 import { NotifyLatePaymentsUseCase } from "../../../application/use-cases/payment/NotifyLatePaymentsUseCase"
-
 import { AuthController } from "../controllers/auth/AuthController"
 import { UserController } from "../controllers/user/UserController"
 import { TandaController } from "../controllers/tanda/TandaController"
 import { InvitationController } from "../controllers/invitation/InvitationController"
 import { PaymentController } from "../controllers/payment/PaymentController"
-
 import { createAuthMiddleware } from "../../middleware/AuthMiddleware"
 
-const userRepo = new MySQLUserRepository()
 const tandaRepo = new MySQLTandaRepository()
+const userRepo = new MySQLUserRepository()
 const participantRepo = new MySQLParticipantRepository()
 const paymentRepo = new MySQLPaymentRepository()
 const invitationRepo = new MySQLInvitationRepository()
@@ -69,6 +69,7 @@ const deleteTandaUseCase = new DeleteTandaUseCase(tandaRepo)
 
 const generateScheduleUseCase = new GenerateTandaScheduleUseCase(
   participantRepo,
+  tandaRepo,
   turnService
 )
 
@@ -91,7 +92,7 @@ const getTandaMembersUseCase = new GetTandaMembersUseCase(
 )
 
 const updateTandaStatusUseCase = new UpdateTandaStatusUseCase(
-  tandaRepo,
+  tandaRepo
 )
 
 const createInvitationUseCase = new CreateInvitationUseCase(invitationRepo)
