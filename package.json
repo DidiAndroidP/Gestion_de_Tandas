@@ -2,7 +2,7 @@
   "name": "api-gestion-tanda",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.js", 
   "scripts": {
     "tsc": "tsc",
     "build": "tsc",

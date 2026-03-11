@@ -1,8 +1,9 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
 import crypto from 'crypto';
+import { ImageStoragePort } from '../../domain/ports/ImageStoragePort';
 
-export class S3ImageService {
+export class S3ImageService implements ImageStoragePort {
   private s3Client: S3Client;
   private bucketName: string;
   private region: string;
@@ -34,7 +35,7 @@ export class S3ImageService {
       maxWidth = 1200,
       maxHeight = 1200,
       quality = 80,
-      format = 'webp'
+      format = 'webp',
     } = options;
 
     try {
@@ -54,7 +55,6 @@ export class S3ImageService {
         Key: key,
         Body: compressedImage,
         ContentType: `image/${format}`,
-        ACL: 'public-read',
       });
 
       await this.s3Client.send(command);
@@ -63,30 +63,6 @@ export class S3ImageService {
     } catch (error) {
       console.error('Error uploading image to S3:', error);
       throw new Error('Failed to upload image');
-    }
-  }
-
-  async uploadImageWithVersions(
-    file: Buffer,
-    folder: string = 'images'
-  ): Promise<{
-    thumbnail: string;
-    medium: string;
-    large: string;
-    original: string;
-  }> {
-    const baseName = crypto.randomBytes(16).toString('hex');
-
-    try {
-      const thumbnail = await this.uploadVersion(file, folder, `${baseName}-thumb`, 150, 150, 60);
-      const medium = await this.uploadVersion(file, folder, `${baseName}-medium`, 500, 500, 75);
-      const large = await this.uploadVersion(file, folder, `${baseName}-large`, 1200, 1200, 85);
-      const original = await this.uploadVersion(file, folder, `${baseName}-original`, undefined, undefined, 90);
-
-      return { thumbnail, medium, large, original };
-    } catch (error) {
-      console.error('Error uploading image versions:', error);
-      throw new Error('Failed to upload image versions');
     }
   }
 
@@ -106,11 +82,6 @@ export class S3ImageService {
     }
   }
 
-  async deleteImages(imageUrls: string[]): Promise<void> {
-    const deletePromises = imageUrls.map(url => this.deleteImage(url));
-    await Promise.all(deletePromises);
-  }
-
   async validateImage(file: Buffer): Promise<boolean> {
     try {
       const metadata = await sharp(file).metadata();
@@ -119,6 +90,30 @@ export class S3ImageService {
     } catch {
       return false;
     }
+  }
+
+  async uploadImageWithVersions(
+    file: Buffer,
+    folder: string = 'images'
+  ): Promise<{ thumbnail: string; medium: string; large: string; original: string }> {
+    const baseName = crypto.randomBytes(16).toString('hex');
+
+    try {
+      const thumbnail = await this.uploadVersion(file, folder, `${baseName}-thumb`, 150, 150, 60);
+      const medium    = await this.uploadVersion(file, folder, `${baseName}-medium`, 500, 500, 75);
+      const large     = await this.uploadVersion(file, folder, `${baseName}-large`, 1200, 1200, 85);
+      const original  = await this.uploadVersion(file, folder, `${baseName}-original`, undefined, undefined, 90);
+
+      return { thumbnail, medium, large, original };
+    } catch (error) {
+      console.error('Error uploading image versions:', error);
+      throw new Error('Failed to upload image versions');
+    }
+  }
+
+  async deleteImages(imageUrls: string[]): Promise<void> {
+    const deletePromises = imageUrls.map((url) => this.deleteImage(url));
+    await Promise.all(deletePromises);
   }
 
   async getImageInfo(file: Buffer): Promise<{
@@ -164,7 +159,6 @@ export class S3ImageService {
       Key: key,
       Body: compressedImage,
       ContentType: 'image/webp',
-      ACL: 'public-read',
     });
 
     await this.s3Client.send(command);

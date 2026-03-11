@@ -1,16 +1,17 @@
-import { s3ImageService } from '../../../infrastructure/utils/S3ImageService';
 import { UserRepository } from '../../../domain/ports/UserRepository';
+import { ImageStoragePort } from '../../../domain/ports/ImageStoragePort';
 
 export class UploadUserPhotoUseCase {
   constructor(
-    private readonly userRepository: UserRepository
+    private readonly userRepository: UserRepository,
+    private readonly imageStorage: ImageStoragePort  
   ) {}
 
   async execute(
     userId: number,
     imageBuffer: Buffer
   ): Promise<{ photoUrl: string }> {
-    const isValid = await s3ImageService.validateImage(imageBuffer);
+    const isValid = await this.imageStorage.validateImage(imageBuffer);
     if (!isValid) {
       throw new Error('Invalid image file');
     }
@@ -22,13 +23,13 @@ export class UploadUserPhotoUseCase {
 
     if (user.photo) {
       try {
-        await s3ImageService.deleteImage(user.photo);
+        await this.imageStorage.deleteImage(user.photo);
       } catch (error) {
         console.error('Error deleting old photo:', error);
       }
     }
 
-    const photoUrl = await s3ImageService.uploadImage(
+    const photoUrl = await this.imageStorage.uploadImage(
       imageBuffer,
       'users',
       {
