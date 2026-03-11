@@ -17,6 +17,7 @@ export class S3ImageService implements ImageStoragePort {
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+        sessionToken: process.env.AWS_SESSION_TOKEN || '',
       },
     });
   }
@@ -100,9 +101,9 @@ export class S3ImageService implements ImageStoragePort {
 
     try {
       const thumbnail = await this.uploadVersion(file, folder, `${baseName}-thumb`, 150, 150, 60);
-      const medium    = await this.uploadVersion(file, folder, `${baseName}-medium`, 500, 500, 75);
-      const large     = await this.uploadVersion(file, folder, `${baseName}-large`, 1200, 1200, 85);
-      const original  = await this.uploadVersion(file, folder, `${baseName}-original`, undefined, undefined, 90);
+      const medium = await this.uploadVersion(file, folder, `${baseName}-medium`, 500, 500, 75);
+      const large = await this.uploadVersion(file, folder, `${baseName}-large`, 1200, 1200, 85);
+      const original = await this.uploadVersion(file, folder, `${baseName}-original`, undefined, undefined, 90);
 
       return { thumbnail, medium, large, original };
     } catch (error) {
