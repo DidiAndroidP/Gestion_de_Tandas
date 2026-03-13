@@ -42,7 +42,8 @@ export class TurnService {
           turnNumber,
           paymentFrequency
         );
-        return { participantId: participant.id, turnNumber, collectionDate };
+
+        return { participantId: participant.userId, turnNumber, collectionDate };
       }
     );
 
@@ -73,14 +74,17 @@ export class TurnService {
     const periodsToAdd = turnNumber - 1;
 
     switch (paymentFrequency.toLowerCase()) {
-      case 'mensual':
-        date.setMonth(date.getMonth() + periodsToAdd);
+      case 'weekly':
+      case 'semanal':
+        date.setDate(date.getDate() + periodsToAdd * 7);
         break;
+      case 'biweekly':
       case 'quincenal':
         date.setDate(date.getDate() + periodsToAdd * 15);
         break;
-      case 'semanal':
-        date.setDate(date.getDate() + periodsToAdd * 7);
+      case 'monthly':
+      case 'mensual':
+        date.setMonth(date.getMonth() + periodsToAdd);
         break;
       default:
         date.setMonth(date.getMonth() + periodsToAdd);
@@ -88,9 +92,9 @@ export class TurnService {
 
     const dayOfWeek = date.getDay();
     if (dayOfWeek === 6) {
-      date.setDate(date.getDate() + 2); 
+      date.setDate(date.getDate() + 2);
     } else if (dayOfWeek === 0) {
-      date.setDate(date.getDate() + 1); 
+      date.setDate(date.getDate() + 1);
     }
 
     return date;

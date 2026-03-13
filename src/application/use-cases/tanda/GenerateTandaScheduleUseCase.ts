@@ -34,12 +34,12 @@ export class GenerateTandaScheduleUseCase {
     const scheduleResult = this.turnService.generateRandomSchedule(
       participants,
       startDate,
-      tanda.paymentFrequency,
+      tanda.paymentFrequency, 
       totalAmount
     )
 
     for (const assignment of scheduleResult.assignments) {
-      const participant = participants.find(p => p.id === assignment.participantId)
+      const participant = participants.find(p => p.userId === assignment.participantId)
       if (participant) {
         participant.assignTurn(assignment.turnNumber)
         await this.participantRepository.save(participant)
