@@ -37,6 +37,7 @@ export class GetTandaByIdUseCase {
       id: tanda.id,
       name: tanda.name,
       contributionAmount: tanda.contributionAmount,
+      paymentFrequency: tanda.paymentFrequency,
       totalMembers: tanda.totalMembers,
       currentMembers: tanda.currentParticipants(),
       status: this.mapStatus(tanda.status),
