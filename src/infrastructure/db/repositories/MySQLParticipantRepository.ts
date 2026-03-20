@@ -78,7 +78,12 @@ export class MySQLParticipantRepository implements ParticipantRepository {
   }
 
   async delete(userId: number, tandaId: number): Promise<void> {
-    await this.repository.delete({ userId, tandaId });
+    await this.repository
+      .createQueryBuilder()
+      .delete()
+      .from(ParticipantEntity)
+      .where("userId = :userId AND tandaId = :tandaId", { userId, tandaId })
+      .execute();
   }
 
   private toDomain(entity: ParticipantEntity): Participant {
