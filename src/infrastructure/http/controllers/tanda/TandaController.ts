@@ -161,8 +161,8 @@ export class TandaController {
   async leave(req: Request, res: Response) {
     try {
       await this.leaveTandaUseCase.execute(
-        Number(req.params.id),
-        req.user!.userId
+        req.user!.userId,
+        Number(req.params.id)
       )
       res.status(200).json({ message: "Saliste de la tanda" })
     } catch (error: any) {
