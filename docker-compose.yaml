@@ -15,6 +15,9 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
       - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
     restart: always
     depends_on:
       db:
@@ -37,7 +40,7 @@ services:
     networks:
       - tandas-network
     healthcheck:
-      test: "mysqladmin ping -h localhost -u root -p${DB_PASSWORD}"
+      test: "mysqladmin ping -h 127.0.0.1 -u root -p${DB_PASSWORD}"
       interval: 10s
       timeout: 5s
       retries: 5

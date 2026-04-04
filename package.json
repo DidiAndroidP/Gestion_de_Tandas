@@ -2,7 +2,7 @@
   "name": "api-gestion-tanda",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js", 
+  "main": "index.js",
   "scripts": {
     "tsc": "tsc",
     "build": "tsc",
@@ -29,6 +29,7 @@
     "mysql2": "^3.16.3",
     "reflect-metadata": "^0.2.2",
     "sharp": "^0.34.5",
+    "stripe": "^22.0.0",
     "typeorm": "^0.3.28"
   },
   "devDependencies": {

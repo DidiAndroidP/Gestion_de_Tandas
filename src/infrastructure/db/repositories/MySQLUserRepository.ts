@@ -11,7 +11,7 @@ export class MySQLUserRepository implements UserRepository {
     this.repository = AppDataSource.getRepository(UserEntity);
   }
 
-  async save(user: User): Promise<void> {
+  async save(user: User): Promise<User> {
     const userEntity = this.repository.create({
       id: user.id !== 0 ? user.id : undefined,
       name: user.name,
@@ -24,7 +24,8 @@ export class MySQLUserRepository implements UserRepository {
       failedAttempts: user.failedAttempts,
     });
     
-    await this.repository.save(userEntity);
+    const savedEntity = await this.repository.save(userEntity);
+    return this.toDomain(savedEntity);
   }
 
   async findById(id: number): Promise<User | null> {

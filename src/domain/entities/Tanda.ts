@@ -68,4 +68,8 @@ export class Tanda {
   canStartWith(currentParticipants: number): boolean {
     return currentParticipants >= this.totalMembers
   }
+
+  canReceivePayments(): boolean {
+    return this.status === "in_progress"
+  }
 }
