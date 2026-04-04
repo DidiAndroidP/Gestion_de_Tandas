@@ -48,6 +48,10 @@ export class MySQLUserRepository implements UserRepository {
     });
   }
 
+  async updateFcmToken(userId: number, token: string): Promise<void> {
+    await this.repository.update(userId, { fcmToken: token });
+  }
+
   async delete(id: number): Promise<void> {
     await this.repository.delete(id);
   }

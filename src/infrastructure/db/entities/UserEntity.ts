@@ -22,6 +22,9 @@ export class UserEntity {
   @Column({ length: 500, nullable: true })
   photo?: string;
 
+  @Column({ type: 'varchar', length: 255, nullable: true, name: 'fcm_token' })
+  fcmToken?: string;
+
   @Column({ type: 'enum', enum: ['admin', 'user', 'guest'], default: 'user' })
   role!: 'admin' | 'user' | 'guest';
 
