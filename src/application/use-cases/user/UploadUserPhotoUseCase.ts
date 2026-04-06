@@ -29,20 +29,20 @@ export class UploadUserPhotoUseCase {
       }
     }
 
-    const photoUrl = await this.imageStorage.uploadImage(
+    const result = await this.imageStorage.uploadImage(
       imageBuffer,
       'users',
       {
         maxWidth: 800,
         maxHeight: 800,
         quality: 85,
-        format: 'webp',
+        format: 'auto',
       }
     );
 
-    user.photo = photoUrl;
+    user.photo = result.publicId;
     await this.userRepository.update(user);
 
-    return { photoUrl };
+    return { photoUrl: result.url };
   }
 }
