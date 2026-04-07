@@ -37,7 +37,7 @@ import { TandaController } from '../controllers/tanda/TandaController';
 import { InvitationController } from '../controllers/invitation/InvitationController';
 import { PaymentController } from '../controllers/payment/PaymentController';
 import { createAuthMiddleware } from '../../middleware/AuthMiddleware';
-import { cloudinaryService } from '../../utils/CloudinaryServiceImpl';
+import { cloudinaryService, CloudinaryServiceImpl } from '../../utils/CloudinaryServiceImpl';
 
 const tandaRepo = new MySQLTandaRepository();
 const userRepo = new MySQLUserRepository();
@@ -53,7 +53,7 @@ export const authMiddleware = createAuthMiddleware(authRepo);
 
 const createUserUseCase = new CreateUserUseCase(userRepo, authRepo);
 const loginUseCase = new LoginUseCase(userRepo, authRepo);
-const getUserByIdUseCase = new GetUserByIdUseCase(userRepo);
+const getUserByIdUseCase = new GetUserByIdUseCase(userRepo, cloudinaryService);
 const updateUserUseCase = new UpdateUserUseCase(userRepo);
 const activateUserUseCase = new ActivateUserUseCase(userRepo);
 const uploadUserPhotoUseCase = new UploadUserPhotoUseCase(userRepo, cloudinaryService);

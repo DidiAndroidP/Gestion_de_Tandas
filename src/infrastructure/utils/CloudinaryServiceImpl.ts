@@ -3,8 +3,8 @@ import sharp from 'sharp';
 import ImageMetadata from "../../application/dtos/user/ImageMetadataDto";
 import { ImageStoragePort } from "../../domain/ports/ImageStoragePort";
 
-export class CloudinaryServiceImpl implements ImageStoragePort{
-    constructor(){
+export class CloudinaryServiceImpl implements ImageStoragePort {
+    constructor() {
         if (!process.env.CLOUDINARY_URL) {
             throw new Error('CLOUDINARY_URL environment variable is required');
         }
@@ -24,42 +24,43 @@ export class CloudinaryServiceImpl implements ImageStoragePort{
         }
     ): Promise<{ publicId: string; url: string }> {
         try {
-        const uploadOptions: any = {
-            folder,
-            resource_type: 'image',
-            overwrite: true,
-            faces: true,
-            colors: true
-        };
+            const uploadOptions: any = {
+                folder,
+                resource_type: 'image',
+                overwrite: true,
+                faces: true,
+                colors: true
+            };
 
-        if (options?.maxWidth || options?.maxHeight) {
-            uploadOptions.eager = [{
-            width: options.maxWidth || undefined,
-            height: options.maxHeight || undefined,
-            crop: 'limit',
-            quality: options.quality ? `q_${options.quality}` : 'q_auto',
-            fetch_format: options.format === 'auto' ? 'auto' : (options.format || 'auto')
-            }];
-        }
-
-        const result = await new Promise<any>((resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-            uploadOptions,
-            (error, result) => {
-                if (error) return reject(error);
-                if (!result) return reject(new Error('Upload failed'));
-                resolve(result);
+            // FIX: Pasamos los valores limpios, sin prefijos 'q_' o similares
+            if (options?.maxWidth || options?.maxHeight) {
+                uploadOptions.eager = [{
+                    width: options.maxWidth || undefined,
+                    height: options.maxHeight || undefined,
+                    crop: 'limit',
+                    quality: options.quality || 'auto',
+                    fetch_format: options.format || 'auto'
+                }];
             }
-            );
-            stream.end(file);
-        });
 
-        const url = result.eager?.[0]?.secure_url || result.secure_url;
+            const result = await new Promise<any>((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    uploadOptions,
+                    (error, result) => {
+                        if (error) return reject(error);
+                        if (!result) return reject(new Error('Upload failed'));
+                        resolve(result);
+                    }
+                );
+                stream.end(file);
+            });
 
-        return {
-            publicId: result.public_id,
-            url
-        };
+            const url = result.eager?.[0]?.secure_url || result.secure_url;
+
+            return {
+                publicId: result.public_id,
+                url
+            };
 
         } catch (error) {
             console.error('Cloudinary upload error:', error);
@@ -71,9 +72,9 @@ export class CloudinaryServiceImpl implements ImageStoragePort{
         try {
             const result = await cloudinary.uploader.destroy(publicId);
         
-        if (result.result !== 'ok' && result.result !== 'not found') {
-            throw new Error(`Delete failed: ${result.result}`);
-        }
+            if (result.result !== 'ok' && result.result !== 'not found') {
+                throw new Error(`Delete failed: ${result.result}`);
+            }
         } catch (error) {
             console.error('Cloudinary delete error:', error);
             throw new Error(`Failed to delete image: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -111,30 +112,21 @@ export class CloudinaryServiceImpl implements ImageStoragePort{
             gravity?: 'auto' | 'face' | 'center';
         }
     ): Promise<string> {
-        const transformations: string[] = [];
+        // FIX: En lugar de concatenar arrays con w_, h_, etc. 
+        // Le pasamos el objeto limpio a Cloudinary y él arma la URL perfecta
+        const cloudinaryOptions: any = {
+            secure: true,
+            quality: options?.quality || 'auto',
+            fetch_format: options?.format || 'auto'
+        };
 
-        if (options?.width) transformations.push(`w_${options.width}`);
-        if (options?.height) transformations.push(`h_${options.height}`);
-        if (options?.crop) transformations.push(`c_${options.crop}`);
-        if (options?.gravity) transformations.push(`g_${options.gravity}`);
+        if (options?.width) cloudinaryOptions.width = options.width;
+        if (options?.height) cloudinaryOptions.height = options.height;
+        if (options?.crop) cloudinaryOptions.crop = options.crop;
+        if (options?.gravity) cloudinaryOptions.gravity = options.gravity;
 
-        if (options?.quality === 'auto' || !options?.quality) {
-            transformations.push('q_auto');
-        } else {
-            transformations.push(`q_${options.quality}`);
-        }
-
-        if (options?.format === 'auto' || !options?.format) {
-            transformations.push('f_auto');
-        } else {
-            transformations.push(`f_${options.format}`);
-        }
-
-        return cloudinary.url(publicId, {
-            transformation: transformations.join(','),
-            secure: true
-        });
+        return cloudinary.url(publicId, cloudinaryOptions);
     }
 }
 
-export const cloudinaryService = new CloudinaryServiceImpl()
+export const cloudinaryService = new CloudinaryServiceImpl();
