@@ -4,7 +4,6 @@ import { MySQLParticipantRepository } from '../../db/repositories/MySQLParticipa
 import { MySQLPaymentRepository } from '../../db/repositories/MySQLPaymentRepository';
 import { MySQLInvitationRepository } from '../../db/repositories/MySQLInvitationRepository';
 import { BcryptJwtAuthRepository } from '../../auth/BcryptJwtAuthRepository';
-import { s3ImageService } from '../../utils/S3ImageService';
 import { StripeGatewayService } from '../../payments/StripeGatewayService';
 import { TurnService } from '../../../domain/services/TurnService';
 import { CreateUserUseCase } from '../../../application/use-cases/user/CreateUserUseCase';
@@ -38,6 +37,7 @@ import { TandaController } from '../controllers/tanda/TandaController';
 import { InvitationController } from '../controllers/invitation/InvitationController';
 import { PaymentController } from '../controllers/payment/PaymentController';
 import { createAuthMiddleware } from '../../middleware/AuthMiddleware';
+import { cloudinaryService, CloudinaryServiceImpl } from '../../utils/CloudinaryServiceImpl';
 
 const tandaRepo = new MySQLTandaRepository();
 const userRepo = new MySQLUserRepository();
@@ -53,10 +53,10 @@ export const authMiddleware = createAuthMiddleware(authRepo);
 
 const createUserUseCase = new CreateUserUseCase(userRepo, authRepo);
 const loginUseCase = new LoginUseCase(userRepo, authRepo);
-const getUserByIdUseCase = new GetUserByIdUseCase(userRepo);
+const getUserByIdUseCase = new GetUserByIdUseCase(userRepo, cloudinaryService);
 const updateUserUseCase = new UpdateUserUseCase(userRepo);
 const activateUserUseCase = new ActivateUserUseCase(userRepo);
-const uploadUserPhotoUseCase = new UploadUserPhotoUseCase(userRepo, s3ImageService);
+const uploadUserPhotoUseCase = new UploadUserPhotoUseCase(userRepo, cloudinaryService);
 
 const createTandaUseCase = new CreateTandaUseCase(tandaRepo, participantRepo);
 const getTandaByIdUseCase = new GetTandaByIdUseCase(tandaRepo, participantRepo);

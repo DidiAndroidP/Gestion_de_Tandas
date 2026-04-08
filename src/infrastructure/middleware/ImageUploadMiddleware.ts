@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
-import { s3ImageService } from '../utils/S3ImageService';
+import { cloudinaryService } from '../utils/CloudinaryServiceImpl';
 
 const storage = multer.memoryStorage();
 
@@ -30,12 +30,12 @@ export const validateAndCompressImage = async (
       return res.status(400).json({ error: 'No image file provided' });
     }
 
-    const isValid = await s3ImageService.validateImage(req.file.buffer);
+    const isValid = await cloudinaryService.validateImage(req.file.buffer);
     if (!isValid) {
       return res.status(400).json({ error: 'Invalid image file' });
     }
 
-    const imageInfo = await s3ImageService.getImageInfo(req.file.buffer);
+    const imageInfo = await cloudinaryService.getImageInfo(req.file.buffer);
 
     if (imageInfo.width < 100 || imageInfo.height < 100) {
       return res.status(400).json({ 
@@ -52,29 +52,30 @@ export const validateAndCompressImage = async (
   }
 };
 
-export const uploadToS3 = (folder: string = 'images') => {
+export const uploadToCloudinary = (folder: string = 'images') => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (!req.file) {
         return next();
       }
 
-      const imageUrl = await s3ImageService.uploadImage(
+      const result = await cloudinaryService.uploadImage(
         req.file.buffer,
         folder,
         {
           maxWidth: 1200,
           maxHeight: 1200,
           quality: 85,
-          format: 'webp',
+          format: 'auto',
         }
       );
 
-      (req as any).imageUrl = imageUrl;
+      (req as any).imagePublicId = result.publicId;
+      (req as any).imageUrl = result.url;
 
       next();
     } catch (error) {
-      console.error('Error uploading to S3:', error);
+      console.error('Error uploading to Cloudinary:', error);
       res.status(500).json({ error: 'Failed to upload image' });
     }
   };
