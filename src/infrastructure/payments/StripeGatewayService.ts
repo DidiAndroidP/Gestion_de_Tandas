@@ -3,7 +3,7 @@ import { PaymentGatewayPort } from '../../domain/ports/PaymentGatewayPort';
 const StripeClient = require('stripe');
 
 export class StripeGatewayService implements PaymentGatewayPort {
-  private stripe: any; 
+  private stripe: any;
 
   constructor() {
     this.stripe = new StripeClient(process.env.STRIPE_SECRET_KEY as string, {
@@ -12,6 +12,9 @@ export class StripeGatewayService implements PaymentGatewayPort {
   }
 
   async createCheckoutSession(amount: number, tandaId: number, userId: number, period: number): Promise<string> {
+    
+    const baseUrl = process.env.FRONTEND_URL || 'https://tandamex.dswer.xyz';
+
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -27,8 +30,10 @@ export class StripeGatewayService implements PaymentGatewayPort {
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/success?tanda=${tandaId}`,
-      cancel_url: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/cancel`,
+      
+      success_url: `${baseUrl}/tanda/${tandaId}`,
+      cancel_url: `${baseUrl}/tanda/${tandaId}`,
+      
       metadata: {
         tandaId: tandaId.toString(),
         userId: userId.toString(),
