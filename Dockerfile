@@ -10,6 +10,8 @@ COPY . .
 
 RUN npm run build
 
+RUN cp src/infrastructure/notifications/tandamex-firebase-adminsdk-.json dist/src/infrastructure/notifications/
+
 EXPOSE 3000
 
 CMD ["npm", "start"]
