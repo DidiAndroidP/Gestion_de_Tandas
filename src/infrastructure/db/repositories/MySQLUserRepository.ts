@@ -19,11 +19,12 @@ export class MySQLUserRepository implements UserRepository {
       password: user.passwordHash,
       phone: user.phone || undefined,  
       photo: user.photo || undefined,  
+      fcmToken: user.fcmToken || undefined, 
       role: user.role,
       active: user.active,
       failedAttempts: user.failedAttempts,
     });
-    
+
     const savedEntity = await this.repository.save(userEntity);
     return this.toDomain(savedEntity);
   }
@@ -64,6 +65,7 @@ export class MySQLUserRepository implements UserRepository {
       entity.password,
       entity.phone || null,  
       entity.photo || null,  
+      entity.fcmToken || null, 
       entity.role,
       entity.active,
       entity.failedAttempts,

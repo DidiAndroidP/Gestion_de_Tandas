@@ -3,13 +3,15 @@ import { GetUserByIdUseCase } from "../../../../application/use-cases/user/GetUs
 import { UpdateUserUseCase } from "../../../../application/use-cases/user/UpdateUserUseCase";
 import { ActivateUserUseCase } from "../../../../application/use-cases/user/ActivateUserUseCase";
 import { UploadUserPhotoUseCase } from "../../../../application/use-cases/user/UploadUserPhotoUseCase";
+import { SaveFcmTokenUseCase } from "../../../../application/use-cases/user/SaveFcmTokenUseCase";
 
 export class UserController {
   constructor(
     private readonly getUserByIdUseCase: GetUserByIdUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly activateUserUseCase: ActivateUserUseCase,
-    private readonly uploadUserPhotoUseCase: UploadUserPhotoUseCase 
+    private readonly uploadUserPhotoUseCase: UploadUserPhotoUseCase,
+    private readonly saveFcmTokenUseCase: SaveFcmTokenUseCase
   ) { }
 
   async getById(req: Request, res: Response) {
@@ -37,6 +39,23 @@ export class UserController {
       const userId = Number(req.params.id);
       await this.activateUserUseCase.execute(userId);
       res.status(200).json({ message: "User activated" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  async updateFcmToken(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.user!.userId;
+      const { token } = req.body;
+
+      if (!token) {
+        res.status(400).json({ error: "El token FCM es requerido" });
+        return;
+      }
+
+      await this.saveFcmTokenUseCase.execute(userId, token);
+      res.status(200).json({ message: "Token de notificaciones actualizado" });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }

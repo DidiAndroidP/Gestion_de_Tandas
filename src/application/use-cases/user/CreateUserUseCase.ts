@@ -11,6 +11,7 @@ export class CreateUserUseCase {
 
   async execute(dto: CreateUserDTO): Promise<User> {
     const exists = await this.userRepository.findByEmail(dto.email);
+
     if (exists) {
       throw new Error("Email already registered");
     }
@@ -24,6 +25,7 @@ export class CreateUserUseCase {
       hashedPassword,
       dto.phone ?? null,
       dto.photo ?? null,
+      null, 
       "user",
       true,
       0,

@@ -12,6 +12,7 @@ import { GetUserByIdUseCase } from '../../../application/use-cases/user/GetUserB
 import { UpdateUserUseCase } from '../../../application/use-cases/user/UpdateUserUseCase';
 import { ActivateUserUseCase } from '../../../application/use-cases/user/ActivateUserUseCase';
 import { UploadUserPhotoUseCase } from '../../../application/use-cases/user/UploadUserPhotoUseCase';
+import { SaveFcmTokenUseCase } from '../../../application/use-cases/user/SaveFcmTokenUseCase';
 import { CreateTandaUseCase } from '../../../application/use-cases/tanda/CreateTandaUseCase';
 import { GetTandaByIdUseCase } from '../../../application/use-cases/tanda/GetTandaByIdUseCase';
 import { JoinTandaUseCase } from '../../../application/use-cases/tanda/JoinTandaUseCase';
@@ -38,6 +39,7 @@ import { InvitationController } from '../controllers/invitation/InvitationContro
 import { PaymentController } from '../controllers/payment/PaymentController';
 import { createAuthMiddleware } from '../../middleware/AuthMiddleware';
 import { cloudinaryService, CloudinaryServiceImpl } from '../../utils/CloudinaryServiceImpl';
+import { FirebaseNotificationService } from '../../notifications/FirebaseNotificationService';
 
 const tandaRepo = new MySQLTandaRepository();
 const userRepo = new MySQLUserRepository();
@@ -48,6 +50,7 @@ const authRepo = new BcryptJwtAuthRepository();
 
 const turnService = new TurnService();
 const stripeGatewayService = new StripeGatewayService();
+const notificationService = new FirebaseNotificationService();
 
 export const authMiddleware = createAuthMiddleware(authRepo);
 
@@ -57,6 +60,7 @@ const getUserByIdUseCase = new GetUserByIdUseCase(userRepo, cloudinaryService);
 const updateUserUseCase = new UpdateUserUseCase(userRepo);
 const activateUserUseCase = new ActivateUserUseCase(userRepo);
 const uploadUserPhotoUseCase = new UploadUserPhotoUseCase(userRepo, cloudinaryService);
+const saveFcmTokenUseCase = new SaveFcmTokenUseCase(userRepo);
 
 const createTandaUseCase = new CreateTandaUseCase(tandaRepo, participantRepo);
 const getTandaByIdUseCase = new GetTandaByIdUseCase(tandaRepo, participantRepo);
@@ -78,7 +82,7 @@ const acceptInvitationUseCase = new AcceptInvitationUseCase(invitationRepo, join
 const registerPaymentUseCase = new RegisterPaymentUseCase(paymentRepo, participantRepo);
 const notifyLatePaymentsUseCase = new NotifyLatePaymentsUseCase(paymentRepo, tandaRepo);
 const createPaymentSessionUseCase = new CreatePaymentSessionUseCase(stripeGatewayService, participantRepo, tandaRepo);
-const processWebhookPaymentUseCase = new ProcessWebhookPaymentUseCase(paymentRepo, participantRepo);
+const processWebhookPaymentUseCase = new ProcessWebhookPaymentUseCase(paymentRepo, participantRepo, userRepo, tandaRepo, notificationService);
 
 export const authController = new AuthController(
   createUserUseCase,
@@ -89,7 +93,8 @@ export const userController = new UserController(
   getUserByIdUseCase,
   updateUserUseCase,
   activateUserUseCase,
-  uploadUserPhotoUseCase
+  uploadUserPhotoUseCase,
+  saveFcmTokenUseCase
 );
 
 export const tandaController = new TandaController(

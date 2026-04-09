@@ -8,6 +8,7 @@ export class User {
     public passwordHash: string,
     public phone: string | null,
     public photo: string | null,  
+    public fcmToken: string | null, 
     public role: UserRole,
     public active: boolean,
     public failedAttempts: number,

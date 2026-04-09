@@ -11,5 +11,6 @@ router.get("/:id", userController.getById.bind(userController));
 router.post("/me/photo",upload.single('photo'),validateAndCompressImage,userController.uploadPhoto.bind(userController));
 router.patch("/me", userController.update.bind(userController));
 router.patch("/:id/activate", userController.activate.bind(userController));
+router.patch("/me/fcm-token", userController.updateFcmToken.bind(userController));
 
 export { router as userRouter };
