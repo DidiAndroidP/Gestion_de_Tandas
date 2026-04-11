@@ -52,6 +52,15 @@ export class MySQLTandaRepository implements TandaRepository {
     return tandas.map(tanda => this.toDomain(tanda));
   }
 
+  async findByUserId(userId: number): Promise<Tanda[]> {
+    const tandas = await this.repository.createQueryBuilder("tanda")
+      .innerJoin("participants", "participant", "participant.tanda_id = tanda.id")
+      .where("participant.user_id = :userId", { userId })
+      .getMany();
+
+    return tandas.map(tanda => this.toDomain(tanda));
+  }
+
   async deleteById(id: number): Promise<void> {
     await this.repository.delete(id);
   }

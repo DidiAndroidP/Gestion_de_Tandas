@@ -12,6 +12,7 @@ import { GetTandaSummaryUseCase } from "../../../../application/use-cases/tanda/
 import { GetAvailableTandasUseCase } from "../../../../application/use-cases/tanda/GetAvailableTandasUseCase"
 import { LeaveTandaUseCase } from "../../../../application/use-cases/tanda/LeaveTandaUseCase"
 import { DeleteTandaUseCase } from "../../../../application/use-cases/tanda/DeleteTandaUseCase"
+import { GetMyTandasUseCase } from "../../../../application/use-cases/tanda/GetMyTandasUseCase"
 
 export class TandaController {
   constructor(
@@ -27,7 +28,8 @@ export class TandaController {
     private readonly leaveTandaUseCase: LeaveTandaUseCase,
     private readonly getMembersUseCase: GetTandaMembersUseCase,
     private readonly updateStatusUseCase: UpdateTandaStatusUseCase,
-    private readonly deleteTandaUseCase: DeleteTandaUseCase
+    private readonly deleteTandaUseCase: DeleteTandaUseCase,
+    private readonly getMyTandasUseCase: GetMyTandasUseCase
   ) { }
 
   async create(req: Request, res: Response) {
@@ -155,6 +157,16 @@ export class TandaController {
       res.status(200).json(tandas)
     } catch (error: any) {
       res.status(500).json({ error: error.message })
+    }
+  }
+
+  async getMyTandas(req: Request, res: Response) {
+    try {
+      const userId = req.user!.userId;
+      const tandas = await this.getMyTandasUseCase.execute(userId);
+      res.status(200).json(tandas);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
     }
   }
 
