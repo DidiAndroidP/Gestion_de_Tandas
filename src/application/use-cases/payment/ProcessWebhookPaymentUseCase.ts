@@ -25,16 +25,21 @@ export class ProcessWebhookPaymentUseCase {
 
     participant.markAsPaid();
     await this.participantRepository.save(participant);
+
+    // --- LÓGICA DE NOTIFICACIONES CORREGIDA ---
     try {
       const payingUser = await this.userRepository.findById(userId);
       const tanda = await this.tandaRepository.findById(tandaId);
       const allParticipants = await this.participantRepository.findByTanda(tandaId);
 
+      console.log(`📣 Buscando a quién notificar en Tanda ${tandaId}. Total miembros: ${allParticipants.length}`);
+
       if (payingUser && tanda) {
+        // Excluimos al usuario que acaba de pagar para no notificarle a él mismo
         const otherUserIds = allParticipants
           .map(p => p.userId)
-          .filter(id => id !== userId);
-
+          .filter(id => Number(id) !== Number(userId));
+        
         const tokens: string[] = [];
 
         for (const id of otherUserIds) {
@@ -44,16 +49,25 @@ export class ProcessWebhookPaymentUseCase {
           }
         }
 
+        console.log(`📣 Se encontraron ${tokens.length} tokens FCM válidos para enviar.`);
+
         if (tokens.length > 0) {
           await this.notificationService.sendPushNotification(
             tokens,
             "¡Nuevo pago registrado!",
-            `${payingUser.name} ha pagado su aportación en la tanda "${tanda.name}".`
+            `${payingUser.name} ha pagado su aportación en la tanda "${tanda.name}".`,
+            { // <-- ESTO ES LO QUE NECESITABA ANDROID (TandaFirebaseService.kt)
+               tandaId: tanda.id.toString(),
+               title: "¡Nuevo pago registrado!",
+               body: `${payingUser.name} ha pagado su aportación en la tanda "${tanda.name}".`
+            }
           );
+        } else {
+           console.log("⚠️ No se enviaron notificaciones porque no hay otros usuarios con tokens en esta tanda.");
         }
       }
     } catch (error) {
-      console.error("Error enviando notificaciones post-pago:", error);
+      console.error("❌ Error enviando notificaciones post-pago:", error);
     }
   }
 }
