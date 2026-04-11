@@ -39,7 +39,7 @@ import { TandaController } from '../controllers/tanda/TandaController';
 import { InvitationController } from '../controllers/invitation/InvitationController';
 import { PaymentController } from '../controllers/payment/PaymentController';
 import { createAuthMiddleware } from '../../middleware/AuthMiddleware';
-import { cloudinaryService, CloudinaryServiceImpl } from '../../utils/CloudinaryServiceImpl';
+import { cloudinaryService } from '../../utils/CloudinaryServiceImpl';
 import { FirebaseNotificationService } from '../../notifications/FirebaseNotificationService';
 
 const tandaRepo = new MySQLTandaRepository();
@@ -81,7 +81,7 @@ const getMyTandasUseCase = new GetMyTandasUseCase(tandaRepo);
 const createInvitationUseCase = new CreateInvitationUseCase(invitationRepo);
 const acceptInvitationUseCase = new AcceptInvitationUseCase(invitationRepo, joinTandaUseCase);
 
-const registerPaymentUseCase = new RegisterPaymentUseCase(paymentRepo, participantRepo);
+const registerPaymentUseCase = new RegisterPaymentUseCase(paymentRepo, participantRepo, userRepo, tandaRepo, notificationService);
 const notifyLatePaymentsUseCase = new NotifyLatePaymentsUseCase(paymentRepo, tandaRepo);
 const createPaymentSessionUseCase = new CreatePaymentSessionUseCase(stripeGatewayService, participantRepo, tandaRepo);
 const processWebhookPaymentUseCase = new ProcessWebhookPaymentUseCase(paymentRepo, participantRepo, userRepo, tandaRepo, notificationService);
