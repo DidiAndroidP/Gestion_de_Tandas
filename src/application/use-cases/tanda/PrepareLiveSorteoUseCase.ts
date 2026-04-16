@@ -16,10 +16,10 @@ export class PrepareLiveSorteoUseCase {
 
   async execute(tandaId: number): Promise<void> {
     const tanda = await this.tandaRepository.findById(tandaId);
-    if (!tanda) return; 
+    if (!tanda) return;
 
     const participants = await this.participantRepository.findByTanda(tandaId)
-    
+
     const allTokens: string[] = []
     for (const p of participants) {
       const user = await this.userRepository.findById(p.userId)
@@ -37,16 +37,17 @@ export class PrepareLiveSorteoUseCase {
       )
     }
 
-    SocketService.emitToTanda(tandaId, "sorteoIniciado", { countdown: 30 })
+    SocketService.startCountdown(tandaId, 30);
 
     setTimeout(async () => {
       try {
         const result = await this.generateSchedule.execute(tandaId)
-        
+
         tanda.start()
         await this.tandaRepository.update(tanda)
 
         SocketService.emitToTanda(tandaId, "sorteoFinalizado", result)
+        SocketService.clearCountdown(tandaId);
 
         for (const assignment of result.turnosAsignados) {
           const participant = participants.find(p => p.userId === assignment.participanteId)
@@ -57,8 +58,8 @@ export class PrepareLiveSorteoUseCase {
                 [user.fcmToken],
                 `¡Turno asignado en ${tanda.name}! 🎉`,
                 `La tanda ha comenzado oficialmente. Tu número de turno es el: ${assignment.numeroTurno}`,
-                { 
-                  type: "SORTEO_RESULTS", 
+                {
+                  type: "SORTEO_RESULTS",
                   tandaId: tandaId.toString(),
                   turn: assignment.numeroTurno.toString()
                 }
@@ -68,6 +69,7 @@ export class PrepareLiveSorteoUseCase {
         }
       } catch (error) {
         SocketService.emitToTanda(tandaId, "sorteoError", { message: "Error al generar sorteo" })
+        SocketService.clearCountdown(tandaId);
       }
     }, 30000)
   }
