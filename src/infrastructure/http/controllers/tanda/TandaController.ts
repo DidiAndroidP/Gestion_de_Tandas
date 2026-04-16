@@ -13,6 +13,7 @@ import { GetAvailableTandasUseCase } from "../../../../application/use-cases/tan
 import { LeaveTandaUseCase } from "../../../../application/use-cases/tanda/LeaveTandaUseCase"
 import { DeleteTandaUseCase } from "../../../../application/use-cases/tanda/DeleteTandaUseCase"
 import { GetMyTandasUseCase } from "../../../../application/use-cases/tanda/GetMyTandasUseCase"
+import { PrepareLiveSorteoUseCase } from "../../../../application/use-cases/tanda/PrepareLiveSorteoUseCase"
 
 export class TandaController {
   constructor(
@@ -29,7 +30,8 @@ export class TandaController {
     private readonly getMembersUseCase: GetTandaMembersUseCase,
     private readonly updateStatusUseCase: UpdateTandaStatusUseCase,
     private readonly deleteTandaUseCase: DeleteTandaUseCase,
-    private readonly getMyTandasUseCase: GetMyTandasUseCase
+    private readonly getMyTandasUseCase: GetMyTandasUseCase,
+    private readonly prepareLiveSorteoUseCase: PrepareLiveSorteoUseCase
   ) { }
 
   async create(req: Request, res: Response) {
@@ -162,11 +164,11 @@ export class TandaController {
 
   async getMyTandas(req: Request, res: Response) {
     try {
-      const userId = req.user!.userId;
-      const tandas = await this.getMyTandasUseCase.execute(userId);
-      res.status(200).json(tandas);
+      const userId = req.user!.userId
+      const tandas = await this.getMyTandasUseCase.execute(userId)
+      res.status(200).json(tandas)
     } catch (error: any) {
-      res.status(400).json({ error: error.message });
+      res.status(400).json({ error: error.message })
     }
   }
 
@@ -189,6 +191,15 @@ export class TandaController {
         req.user!.userId
       )
       res.status(200).json({ message: "Tanda eliminada exitosamente" })
+    } catch (error: any) {
+      res.status(400).json({ error: error.message })
+    }
+  }
+
+  async liveSchedule(req: Request, res: Response) {
+    try {
+      await this.prepareLiveSorteoUseCase.execute(Number(req.params.id))
+      res.status(200).json({ message: "Sorteo en vivo iniciado. Esperando 30 segundos." })
     } catch (error: any) {
       res.status(400).json({ error: error.message })
     }

@@ -97,4 +97,9 @@ export class MySQLParticipantRepository implements ParticipantRepository {
       entity.joinedAt
     );
   }
+
+  async findById(id: number): Promise<Participant | null> {
+    const participant = await this.repository.findOne({ where: { id } })
+    return participant ? this.toDomain(participant) : null
+  }
 }

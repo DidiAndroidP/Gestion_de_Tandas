@@ -5,6 +5,7 @@ import { TandaEntity } from './entities/TandaEntity';
 import { ParticipantEntity } from './entities/ParticipantEntity';
 import { PaymentEntity } from './entities/PaymentEntity';
 import { InvitationEntity } from './entities/InvitationEntity';
+import { ReviewEntity } from './entities/ReviewEntity';
 
 export const AppDataSource = new DataSource({
   type: 'mysql',
@@ -20,7 +21,9 @@ export const AppDataSource = new DataSource({
     TandaEntity,
     ParticipantEntity,
     PaymentEntity,
-    InvitationEntity
+    InvitationEntity,
+    ReviewEntity
+
   ],
   migrations: ['src/infrastructure/db/migrations/**/*.ts'],
   subscribers: [],

@@ -72,4 +72,20 @@ export class MySQLPaymentRepository implements PaymentRepository {
       entity.penalty
     );
   }
+  
+  async findById(id: number): Promise<Payment | null> {
+    const payment = await this.repository.findOne({ where: { id } })
+    return payment ? this.toDomain(payment) : null
+  }
+
+  async findPendingByDate(date: Date): Promise<Payment[]> {
+    const dateString = date.toISOString().split('T')[0]
+    const payments = await this.repository.find({
+      where: { 
+        dueDate: dateString as any, 
+        status: 'pending' 
+      }
+    })
+    return payments.map(p => this.toDomain(p))
+  }
 }

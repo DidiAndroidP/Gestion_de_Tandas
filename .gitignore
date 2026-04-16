@@ -1,4 +1,4 @@
 /node_modules
 .env
 tandamex-firebase-adminsdk-.json
-.txt*
+tandamex-app-kotlin.txt

@@ -1,95 +1,106 @@
-import { MySQLTandaRepository } from '../../db/repositories/MySQLTandaRepository';
-import { MySQLUserRepository } from '../../db/repositories/MySQLUserRepository';
-import { MySQLParticipantRepository } from '../../db/repositories/MySQLParticipantRepository';
-import { MySQLPaymentRepository } from '../../db/repositories/MySQLPaymentRepository';
-import { MySQLInvitationRepository } from '../../db/repositories/MySQLInvitationRepository';
-import { BcryptJwtAuthRepository } from '../../auth/BcryptJwtAuthRepository';
-import { StripeGatewayService } from '../../payments/StripeGatewayService';
-import { TurnService } from '../../../domain/services/TurnService';
-import { CreateUserUseCase } from '../../../application/use-cases/user/CreateUserUseCase';
-import { LoginUseCase } from '../../../application/use-cases/auth/LoginUseCase';
-import { GetUserByIdUseCase } from '../../../application/use-cases/user/GetUserByIdUseCase';
-import { UpdateUserUseCase } from '../../../application/use-cases/user/UpdateUserUseCase';
-import { ActivateUserUseCase } from '../../../application/use-cases/user/ActivateUserUseCase';
-import { UploadUserPhotoUseCase } from '../../../application/use-cases/user/UploadUserPhotoUseCase';
-import { SaveFcmTokenUseCase } from '../../../application/use-cases/user/SaveFcmTokenUseCase';
-import { CreateTandaUseCase } from '../../../application/use-cases/tanda/CreateTandaUseCase';
-import { GetTandaByIdUseCase } from '../../../application/use-cases/tanda/GetTandaByIdUseCase';
-import { JoinTandaUseCase } from '../../../application/use-cases/tanda/JoinTandaUseCase';
-import { StartTandaUseCase } from '../../../application/use-cases/tanda/StartTandaUseCase';
-import { FinishTandaUseCase } from '../../../application/use-cases/tanda/FinishTandaUseCase';
-import { CloseTandaUseCase } from '../../../application/use-cases/tanda/CloseTandaUseCase';
-import { DeleteTandaUseCase } from '../../../application/use-cases/tanda/DeleteTandaUseCase';
-import { GenerateTandaScheduleUseCase } from '../../../application/use-cases/tanda/GenerateTandaScheduleUseCase';
-import { GetTandaSummaryUseCase } from '../../../application/use-cases/tanda/GetTandaSummaryUseCase';
-import { GetAvailableTandasUseCase } from '../../../application/use-cases/tanda/GetAvailableTandasUseCase';
-import { LeaveTandaUseCase } from '../../../application/use-cases/tanda/LeaveTandaUseCase';
-import { GetTandaMembersUseCase } from '../../../application/use-cases/tanda/GetTandaMembersUseCase';
-import { UpdateTandaStatusUseCase } from '../../../application/use-cases/tanda/UpdateTandaStatusUseCase';
-import { GetMyTandasUseCase } from '../../../application/use-cases/tanda/GetMyTandasUseCase';
-import { CreateInvitationUseCase } from '../../../application/use-cases/invitation/CreateInvitationUseCase';
-import { AcceptInvitationUseCase } from '../../../application/use-cases/invitation/AcceptInvitationUseCase';
-import { RegisterPaymentUseCase } from '../../../application/use-cases/payment/RegisterPaymentUseCase';
-import { NotifyLatePaymentsUseCase } from '../../../application/use-cases/payment/NotifyLatePaymentsUseCase';
-import { CreatePaymentSessionUseCase } from '../../../application/use-cases/payment/CreatePaymentSessionUseCase';
-import { ProcessWebhookPaymentUseCase } from '../../../application/use-cases/payment/ProcessWebhookPaymentUseCase';
-import { AuthController } from '../controllers/auth/AuthController';
-import { UserController } from '../controllers/user/UserController';
-import { TandaController } from '../controllers/tanda/TandaController';
-import { InvitationController } from '../controllers/invitation/InvitationController';
-import { PaymentController } from '../controllers/payment/PaymentController';
-import { createAuthMiddleware } from '../../middleware/AuthMiddleware';
-import { cloudinaryService } from '../../utils/CloudinaryServiceImpl';
-import { FirebaseNotificationService } from '../../notifications/FirebaseNotificationService';
+import { MySQLTandaRepository } from '../../db/repositories/MySQLTandaRepository'
+import { MySQLUserRepository } from '../../db/repositories/MySQLUserRepository'
+import { MySQLParticipantRepository } from '../../db/repositories/MySQLParticipantRepository'
+import { MySQLPaymentRepository } from '../../db/repositories/MySQLPaymentRepository'
+import { MySQLInvitationRepository } from '../../db/repositories/MySQLInvitationRepository'
+import { BcryptJwtAuthRepository } from '../../auth/BcryptJwtAuthRepository'
+import { StripeGatewayService } from '../../payments/StripeGatewayService'
+import { MySQLReviewRepository } from '../../db/repositories/MySQLReviewRepository'
+import { TurnService } from '../../../domain/services/TurnService'
+import { CreateUserUseCase } from '../../../application/use-cases/user/CreateUserUseCase'
+import { LoginUseCase } from '../../../application/use-cases/auth/LoginUseCase'
+import { GetUserByIdUseCase } from '../../../application/use-cases/user/GetUserByIdUseCase'
+import { UpdateUserUseCase } from '../../../application/use-cases/user/UpdateUserUseCase'
+import { ActivateUserUseCase } from '../../../application/use-cases/user/ActivateUserUseCase'
+import { UploadUserPhotoUseCase } from '../../../application/use-cases/user/UploadUserPhotoUseCase'
+import { SaveFcmTokenUseCase } from '../../../application/use-cases/user/SaveFcmTokenUseCase'
+import { CreateTandaUseCase } from '../../../application/use-cases/tanda/CreateTandaUseCase'
+import { GetTandaByIdUseCase } from '../../../application/use-cases/tanda/GetTandaByIdUseCase'
+import { JoinTandaUseCase } from '../../../application/use-cases/tanda/JoinTandaUseCase'
+import { StartTandaUseCase } from '../../../application/use-cases/tanda/StartTandaUseCase'
+import { FinishTandaUseCase } from '../../../application/use-cases/tanda/FinishTandaUseCase'
+import { CloseTandaUseCase } from '../../../application/use-cases/tanda/CloseTandaUseCase'
+import { DeleteTandaUseCase } from '../../../application/use-cases/tanda/DeleteTandaUseCase'
+import { GenerateTandaScheduleUseCase } from '../../../application/use-cases/tanda/GenerateTandaScheduleUseCase'
+import { PrepareLiveSorteoUseCase } from '../../../application/use-cases/tanda/PrepareLiveSorteoUseCase'
+import { GetTandaSummaryUseCase } from '../../../application/use-cases/tanda/GetTandaSummaryUseCase'
+import { GetAvailableTandasUseCase } from '../../../application/use-cases/tanda/GetAvailableTandasUseCase'
+import { LeaveTandaUseCase } from '../../../application/use-cases/tanda/LeaveTandaUseCase'
+import { GetTandaMembersUseCase } from '../../../application/use-cases/tanda/GetTandaMembersUseCase'
+import { UpdateTandaStatusUseCase } from '../../../application/use-cases/tanda/UpdateTandaStatusUseCase'
+import { GetMyTandasUseCase } from '../../../application/use-cases/tanda/GetMyTandasUseCase'
+import { CreateInvitationUseCase } from '../../../application/use-cases/invitation/CreateInvitationUseCase'
+import { AcceptInvitationUseCase } from '../../../application/use-cases/invitation/AcceptInvitationUseCase'
+import { RegisterPaymentUseCase } from '../../../application/use-cases/payment/RegisterPaymentUseCase'
+import { NotifyLatePaymentsUseCase } from '../../../application/use-cases/payment/NotifyLatePaymentsUseCase'
+import { CreatePaymentSessionUseCase } from '../../../application/use-cases/payment/CreatePaymentSessionUseCase'
+import { ProcessWebhookPaymentUseCase } from '../../../application/use-cases/payment/ProcessWebhookPaymentUseCase'
+import { NotifyUpcomingPaymentsUseCase } from '../../../application/use-cases/payment/NotifyUpcomingPaymentsUseCase'
+import { CreateReviewUseCase } from '../../../application/use-cases/review/CreateReviewUseCase'
+import { GetCreatorReputationUseCase } from '../../../application/use-cases/review/GetCreatorReputationUseCase'
+import { AuthController } from '../controllers/auth/AuthController'
+import { UserController } from '../controllers/user/UserController'
+import { TandaController } from '../controllers/tanda/TandaController'
+import { InvitationController } from '../controllers/invitation/InvitationController'
+import { PaymentController } from '../controllers/payment/PaymentController'
+import { ReviewController } from '../controllers/review/ReviewController'
+import { createAuthMiddleware } from '../../middleware/AuthMiddleware'
+import { cloudinaryService } from '../../utils/CloudinaryServiceImpl'
+import { FirebaseNotificationService } from '../../notifications/FirebaseNotificationService'
 
-const tandaRepo = new MySQLTandaRepository();
-const userRepo = new MySQLUserRepository();
-const participantRepo = new MySQLParticipantRepository();
-const paymentRepo = new MySQLPaymentRepository();
-const invitationRepo = new MySQLInvitationRepository();
-const authRepo = new BcryptJwtAuthRepository();
+const tandaRepo = new MySQLTandaRepository()
+const userRepo = new MySQLUserRepository()
+const participantRepo = new MySQLParticipantRepository()
+const paymentRepo = new MySQLPaymentRepository()
+const invitationRepo = new MySQLInvitationRepository()
+const authRepo = new BcryptJwtAuthRepository()
+const reviewRepo = new MySQLReviewRepository()
 
-const turnService = new TurnService();
-const stripeGatewayService = new StripeGatewayService();
-const notificationService = new FirebaseNotificationService();
+const turnService = new TurnService()
+const stripeGatewayService = new StripeGatewayService()
+const notificationService = new FirebaseNotificationService()
 
-export const authMiddleware = createAuthMiddleware(authRepo);
+export const authMiddleware = createAuthMiddleware(authRepo)
 
-const createUserUseCase = new CreateUserUseCase(userRepo, authRepo);
-const loginUseCase = new LoginUseCase(userRepo, authRepo);
-const getUserByIdUseCase = new GetUserByIdUseCase(userRepo, cloudinaryService);
-const updateUserUseCase = new UpdateUserUseCase(userRepo);
-const activateUserUseCase = new ActivateUserUseCase(userRepo);
-const uploadUserPhotoUseCase = new UploadUserPhotoUseCase(userRepo, cloudinaryService);
-const saveFcmTokenUseCase = new SaveFcmTokenUseCase(userRepo);
+const createUserUseCase = new CreateUserUseCase(userRepo, authRepo)
+const loginUseCase = new LoginUseCase(userRepo, authRepo)
+const getUserByIdUseCase = new GetUserByIdUseCase(userRepo, cloudinaryService)
+const updateUserUseCase = new UpdateUserUseCase(userRepo)
+const activateUserUseCase = new ActivateUserUseCase(userRepo)
+const uploadUserPhotoUseCase = new UploadUserPhotoUseCase(userRepo, cloudinaryService)
+const saveFcmTokenUseCase = new SaveFcmTokenUseCase(userRepo)
+const createReviewUseCase = new CreateReviewUseCase(reviewRepo, tandaRepo, participantRepo)
+const getCreatorReputationUseCase = new GetCreatorReputationUseCase(reviewRepo)
 
-const createTandaUseCase = new CreateTandaUseCase(tandaRepo, participantRepo);
-const getTandaByIdUseCase = new GetTandaByIdUseCase(tandaRepo, participantRepo);
-const joinTandaUseCase = new JoinTandaUseCase(tandaRepo, participantRepo);
-const startTandaUseCase = new StartTandaUseCase(tandaRepo, participantRepo);
-const finishTandaUseCase = new FinishTandaUseCase(tandaRepo);
-const closeTandaUseCase = new CloseTandaUseCase(tandaRepo);
-const deleteTandaUseCase = new DeleteTandaUseCase(tandaRepo);
-const getAvailableTandasUseCase = new GetAvailableTandasUseCase(tandaRepo);
-const leaveTandaUseCase = new LeaveTandaUseCase(participantRepo, tandaRepo);
-const getTandaMembersUseCase = new GetTandaMembersUseCase(participantRepo, userRepo);
-const updateTandaStatusUseCase = new UpdateTandaStatusUseCase(tandaRepo);
-const generateScheduleUseCase = new GenerateTandaScheduleUseCase(participantRepo, tandaRepo, turnService);
-const getSummaryUseCase = new GetTandaSummaryUseCase(tandaRepo, participantRepo, paymentRepo);
-const getMyTandasUseCase = new GetMyTandasUseCase(tandaRepo);
+const createTandaUseCase = new CreateTandaUseCase(tandaRepo, participantRepo)
+const getTandaByIdUseCase = new GetTandaByIdUseCase(tandaRepo, participantRepo)
+const joinTandaUseCase = new JoinTandaUseCase(tandaRepo, participantRepo, userRepo, notificationService)
+const startTandaUseCase = new StartTandaUseCase(tandaRepo, participantRepo, userRepo, notificationService)
+const finishTandaUseCase = new FinishTandaUseCase(tandaRepo, participantRepo, userRepo, notificationService)
+const closeTandaUseCase = new CloseTandaUseCase(tandaRepo)
+const deleteTandaUseCase = new DeleteTandaUseCase(tandaRepo)
+const getAvailableTandasUseCase = new GetAvailableTandasUseCase(tandaRepo)
+const leaveTandaUseCase = new LeaveTandaUseCase(participantRepo, tandaRepo)
+const getTandaMembersUseCase = new GetTandaMembersUseCase(participantRepo, userRepo)
+const updateTandaStatusUseCase = new UpdateTandaStatusUseCase(tandaRepo)
+const generateScheduleUseCase = new GenerateTandaScheduleUseCase(participantRepo, tandaRepo, turnService)
+const prepareLiveSorteoUseCase = new PrepareLiveSorteoUseCase(notificationService, participantRepo, userRepo, generateScheduleUseCase,tandaRepo)
+const getSummaryUseCase = new GetTandaSummaryUseCase(tandaRepo, participantRepo, paymentRepo)
+const getMyTandasUseCase = new GetMyTandasUseCase(tandaRepo)
 
-const createInvitationUseCase = new CreateInvitationUseCase(invitationRepo);
-const acceptInvitationUseCase = new AcceptInvitationUseCase(invitationRepo, joinTandaUseCase);
+const createInvitationUseCase = new CreateInvitationUseCase(invitationRepo)
+const acceptInvitationUseCase = new AcceptInvitationUseCase(invitationRepo, joinTandaUseCase)
 
-const registerPaymentUseCase = new RegisterPaymentUseCase(paymentRepo, participantRepo, userRepo, tandaRepo, notificationService);
-const notifyLatePaymentsUseCase = new NotifyLatePaymentsUseCase(paymentRepo, tandaRepo);
-const createPaymentSessionUseCase = new CreatePaymentSessionUseCase(stripeGatewayService, participantRepo, tandaRepo);
-const processWebhookPaymentUseCase = new ProcessWebhookPaymentUseCase(paymentRepo, participantRepo, userRepo, tandaRepo, notificationService);
+const registerPaymentUseCase = new RegisterPaymentUseCase(paymentRepo, participantRepo, userRepo, tandaRepo, notificationService)
+const notifyLatePaymentsUseCase = new NotifyLatePaymentsUseCase(paymentRepo, tandaRepo)
+const createPaymentSessionUseCase = new CreatePaymentSessionUseCase(stripeGatewayService, participantRepo, tandaRepo)
+const processWebhookPaymentUseCase = new ProcessWebhookPaymentUseCase(paymentRepo, participantRepo, userRepo, tandaRepo, notificationService)
+export const notifyUpcomingPaymentsUseCase = new NotifyUpcomingPaymentsUseCase(paymentRepo, participantRepo, userRepo, tandaRepo, notificationService)
 
 export const authController = new AuthController(
   createUserUseCase,
   loginUseCase
-);
+)
 
 export const userController = new UserController(
   getUserByIdUseCase,
@@ -97,7 +108,7 @@ export const userController = new UserController(
   activateUserUseCase,
   uploadUserPhotoUseCase,
   saveFcmTokenUseCase
-);
+)
 
 export const tandaController = new TandaController(
   createTandaUseCase,
@@ -113,17 +124,23 @@ export const tandaController = new TandaController(
   getTandaMembersUseCase,
   updateTandaStatusUseCase,
   deleteTandaUseCase,
-  getMyTandasUseCase
-);
+  getMyTandasUseCase,
+  prepareLiveSorteoUseCase
+)
 
 export const invitationController = new InvitationController(
   createInvitationUseCase,
   acceptInvitationUseCase
-);
+)
 
 export const paymentController = new PaymentController(
   registerPaymentUseCase,
   notifyLatePaymentsUseCase,
   createPaymentSessionUseCase,
   processWebhookPaymentUseCase
-);
+)
+
+export const reviewController = new ReviewController(
+  createReviewUseCase, 
+  getCreatorReputationUseCase
+)

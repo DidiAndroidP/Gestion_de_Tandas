@@ -1,23 +1,23 @@
-import { Router } from "express";
-import { tandaController, authMiddleware } from "../dependencies";
+import { Router } from "express"
+import { tandaController, authMiddleware } from "../dependencies"
 
-const router = Router();
+const router = Router()
 
-router.use(authMiddleware);
+router.use(authMiddleware)
+router.post("/", tandaController.create.bind(tandaController))
+router.get("/available", tandaController.getAvailable.bind(tandaController))
+router.get("/me", tandaController.getMyTandas.bind(tandaController))
+router.post("/:id/leave", tandaController.leave.bind(tandaController))
+router.post("/:id/join", tandaController.join.bind(tandaController))
+router.get("/:id", tandaController.getById.bind(tandaController))
+router.get("/:id/summary", tandaController.getSummary.bind(tandaController))
+router.post("/:id/start", tandaController.start.bind(tandaController))
+router.post("/:id/finish", tandaController.finish.bind(tandaController))
+router.post("/:id/close", tandaController.close.bind(tandaController))
+router.post("/:id/schedule", tandaController.generateSchedule.bind(tandaController))
+router.post("/:id/live-schedule", tandaController.liveSchedule.bind(tandaController))
+router.get("/:id/members", tandaController.members.bind(tandaController))
+router.patch("/:id/status", tandaController.updateStatus.bind(tandaController))
+router.delete("/:id/delete", tandaController.delete.bind(tandaController))
 
-router.post("/", tandaController.create.bind(tandaController));
-router.get("/available", tandaController.getAvailable.bind(tandaController));
-router.get("/me", tandaController.getMyTandas.bind(tandaController));
-router.post("/:id/leave", tandaController.leave.bind(tandaController));
-router.post("/:id/join", tandaController.join.bind(tandaController));
-router.get("/:id", tandaController.getById.bind(tandaController));
-router.get("/:id/summary", tandaController.getSummary.bind(tandaController));
-router.post("/:id/start", tandaController.start.bind(tandaController));
-router.post("/:id/finish", tandaController.finish.bind(tandaController));
-router.post("/:id/close", tandaController.close.bind(tandaController));
-router.post("/:id/schedule", tandaController.generateSchedule.bind(tandaController));
-router.get("/:id/members", tandaController.members.bind(tandaController));
-router.patch("/:id/status", tandaController.updateStatus.bind(tandaController));
-router.delete("/:id/delete", tandaController.delete.bind(tandaController));
-
-export { router as tandaRouter };
+export { router as tandaRouter }
