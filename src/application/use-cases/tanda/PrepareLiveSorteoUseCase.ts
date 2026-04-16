@@ -15,6 +15,9 @@ export class PrepareLiveSorteoUseCase {
   ) {}
 
   async execute(tandaId: number): Promise<void> {
+    const tanda = await this.tandaRepository.findById(tandaId);
+    if (!tanda) return; 
+
     const participants = await this.participantRepository.findByTanda(tandaId)
     
     const allTokens: string[] = []
@@ -28,8 +31,8 @@ export class PrepareLiveSorteoUseCase {
     if (allTokens.length > 0) {
       await this.notificationService.sendPushNotification(
         allTokens,
-        "¡El sorteo está por iniciar!",
-        "Entra ahora para ver la asignación de turnos en vivo.",
+        `¡La ruleta de ${tanda.name} está girando! 🎡`,
+        `La tanda ${tanda.name} está por iniciar la asignación de turnos. Entra para ver el tuyo en vivo.`,
         { type: "LIVE_SORTEO_START", tandaId: tandaId.toString() }
       )
     }
@@ -40,11 +43,8 @@ export class PrepareLiveSorteoUseCase {
       try {
         const result = await this.generateSchedule.execute(tandaId)
         
-        const tanda = await this.tandaRepository.findById(tandaId)
-        if (tanda) {
-            tanda.start()
-            await this.tandaRepository.update(tanda)
-        }
+        tanda.start()
+        await this.tandaRepository.update(tanda)
 
         SocketService.emitToTanda(tandaId, "sorteoFinalizado", result)
 
@@ -55,7 +55,7 @@ export class PrepareLiveSorteoUseCase {
             if (user && user.fcmToken) {
               await this.notificationService.sendPushNotification(
                 [user.fcmToken],
-                "Sorteo finalizado",
+                `¡Turno asignado en ${tanda.name}! 🎉`,
                 `La tanda ha comenzado oficialmente. Tu número de turno es el: ${assignment.numeroTurno}`,
                 { 
                   type: "SORTEO_RESULTS", 

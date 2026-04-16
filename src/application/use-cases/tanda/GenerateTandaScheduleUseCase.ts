@@ -1,5 +1,6 @@
 import { ParticipantRepository } from "../../../domain/ports/ParticipantRepository"
 import { TandaRepository } from "../../../domain/ports/TandaRepository"
+import { UserRepository } from "../../../domain/ports/UserRepository" // <-- IMPORTANTE
 import { TurnService } from "../../../domain/services/TurnService"
 import { ScheduleResponse } from "../../dtos/tanda/ScheduleResponseDTO"
 
@@ -7,7 +8,8 @@ export class GenerateTandaScheduleUseCase {
   constructor(
     private readonly participantRepository: ParticipantRepository,
     private readonly tandaRepository: TandaRepository,
-    private readonly turnService: TurnService
+    private readonly turnService: TurnService,
+    private readonly userRepository: UserRepository 
   ) {}
 
   async execute(tandaId: number): Promise<ScheduleResponse> {
@@ -38,25 +40,34 @@ export class GenerateTandaScheduleUseCase {
       totalAmount
     )
 
-    for (const assignment of scheduleResult.assignments) {
-      const participant = participants.find(p => p.userId === assignment.participantId)
-      if (participant) {
-        participant.assignTurn(assignment.turnNumber)
-        await this.participantRepository.save(participant)
-      }
-    }
+    const turnosConNombres = await Promise.all(
+        scheduleResult.assignments.map(async (assignment) => {
+            const participant = participants.find(p => p.userId === assignment.participantId)
+            
+            if (participant) {
+                participant.assignTurn(assignment.turnNumber)
+                await this.participantRepository.save(participant)
+            }
+
+            const user = await this.userRepository.findById(assignment.participantId);
+            const nombreCompleto = user ? user.name : `Usuario ID: ${assignment.participantId}`;
+
+            return {
+                participanteId: assignment.participantId,
+                nombreParticipante: nombreCompleto, 
+                numeroTurno: assignment.turnNumber,
+                fechaCobro: assignment.collectionDate.toISOString().split('T')[0],
+                montoRecibir: totalAmount,
+                estado: "pendiente"
+            };
+        })
+    );
 
     const response: ScheduleResponse = {
       tandaId,
       sorteoFecha: new Date(),
       metodo: "aleatorio",
-      turnosAsignados: scheduleResult.assignments.map(assignment => ({
-        participanteId: assignment.participantId,
-        numeroTurno: assignment.turnNumber,
-        fechaCobro: assignment.collectionDate.toISOString().split('T')[0],
-        montoRecibir: totalAmount,
-        estado: "pendiente"
-      })),
+      turnosAsignados: turnosConNombres,
       resumen: {
         totalPeriodos: tanda.totalMembers,
         montoPorPeriodo: tanda.contributionAmount,
