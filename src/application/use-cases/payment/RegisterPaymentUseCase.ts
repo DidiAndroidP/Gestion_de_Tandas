@@ -39,6 +39,7 @@ export class RegisterPaymentUseCase {
       dto.paymentDate,
       0
     );
+
     await this.paymentRepository.save(payment);
 
     participant.markAsPaid();
@@ -53,9 +54,8 @@ export class RegisterPaymentUseCase {
         const otherUserIds = allParticipants
           .map(p => p.userId)
           .filter(id => id !== dto.userId);
-        
-        const tokens: string[] = [];
 
+        const tokens: string[] = [];
         for (const id of otherUserIds) {
           const user = await this.userRepository.findById(id);
           if (user && user.fcmToken) {
@@ -74,6 +74,33 @@ export class RegisterPaymentUseCase {
                body: `${payingUser.name} ha pagado su aportación en la tanda "${tanda.name}".`
             }
           );
+        }
+
+        const allPaid = allParticipants.every(p => p.alreadyPaid === true);
+        
+        if (allPaid && tanda.status !== 'finished') {
+          tanda.finish();
+          await this.tandaRepository.update(tanda);
+
+          const allTokens: string[] = [];
+          for (const p of allParticipants) {
+            const user = await this.userRepository.findById(p.userId);
+            if (user && user.fcmToken) allTokens.push(user.fcmToken);
+          }
+
+          if (allTokens.length > 0) {
+            await this.notificationService.sendPushNotification(
+              allTokens,
+              "¡Tanda Finalizada!",
+              `Todos han completado sus aportaciones. La tanda "${tanda.name}" ha concluido con éxito. ¡Ya puedes evaluarla!`,
+              { 
+                 type: "TANDA_FINISHED", 
+                 tandaId: tanda.id.toString(),
+                 title: "¡Tanda Finalizada!",
+                 body: `La tanda "${tanda.name}" ha concluido con éxito.`
+              }
+            );
+          }
         }
       }
     } catch (error) {
